@@ -3,7 +3,12 @@
 @font-face {
   font-family: "StarCrush";
   src: url("/fonts/StarCrush.ttf") format("truetype");
-  font-display: swap;
+  /* "block" instead of "swap" so we don't flash a fallback font on first
+     paint and then swap — StarCrush is such a different shape that the
+     swap is jarring. Browsers show invisible text for up to ~3s while
+     the font loads, then render it. The preload below keeps that window
+     short in practice. */
+  font-display: block;
 }
 
 :root {
@@ -78,10 +83,11 @@ a:hover { color: var(--hi); }
 }
 .nav-links {
   display: flex; gap: 4px; flex-wrap: wrap;
-  font-size: 12px; color: var(--ink-dim);
+  font-size: 11px; letter-spacing: 2px; color: var(--ink-dim);
 }
 .nav-links a {
   padding: 4px 8px;
+  text-transform: uppercase;
 }
 .nav-links a:hover { color: var(--hi); }
 
@@ -383,10 +389,11 @@ h3.sub.forge {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
-  padding: 28px 4px;
-  margin-top: 8px;
-  border-top: 1px dashed var(--line);
+  padding: 20px 4px 28px;
+  margin-top: 0;
+  text-align: center;
 }
+.footer .col { display: flex; flex-direction: column; align-items: center; }
 .footer a { display: block; padding: 2px 0; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--ink-dim); }
 .footer a:hover { color: var(--hi); }
 .footer .col h4 {
@@ -400,6 +407,10 @@ h3.sub.forge {
 }
 
 /* ——— Big wordmark ——— */
+/* Back to the plain text wordmark — letters keep their natural shape
+   (no stretch, no extra gaps) and the font-size scales with the viewport
+   so "GIEDI" fills the .wrap width on desktop, and as close to it as the
+   glyph metrics allow on mobile. */
 .wordmark {
   font-family: "StarCrush", monospace;
   font-size: clamp(72px, 26vw, 420px);
@@ -411,6 +422,17 @@ h3.sub.forge {
   padding: 40px 0 10px;
   overflow: hidden;
   white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .wordmark {
+    /* Desktop .wrap adds 32px of horizontal padding, but on mobile the
+       content area is much narrower relative to the viewport — a fixed
+       26vw ends up under-filling. Bump it so GIEDI reaches both edges
+       of the dashed separators. */
+    font-size: 36vw;
+    letter-spacing: 0.02em;
+    padding: 24px 0 6px;
+  }
 }
 
 /* ——— Motto ——— */

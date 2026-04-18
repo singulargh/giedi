@@ -3,7 +3,7 @@ import XIcon from "./XIcon.astro";
 import DuneIcon from "./DuneIcon.astro";
 
 const links = [
-  { href: "#work", label: "WORK" },
+  { href: "/work", label: "WORK" },
   { href: "/contact", label: "CONTACT" },
 ];
 ---
@@ -55,15 +55,23 @@ const links = [
     display: block;
   }
 
-  /* Mobile: stack nav vertically — brand centered on top, links below. */
+  /* Mobile: keep the same layout as desktop — brand on the left, links
+     on the right, all on one row. Tighter padding/spacing so nothing
+     wraps to a second line on narrow phones. */
   @media (max-width: 640px) {
-    .nav {
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
     .nav-links {
-      justify-content: center;
+      flex-wrap: nowrap;
+      gap: 0;
+      font-size: 11px;
+    }
+    .nav-links a {
+      padding: 4px 4px;
+    }
+    .nav-icon {
+      padding: 4px 6px !important;
+    }
+    .brand-g {
+      font-size: 36px;
     }
   }
 </style>

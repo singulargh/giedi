@@ -4,27 +4,30 @@ import DuneIcon from "./DuneIcon.astro";
 const year = new Date().getFullYear();
 ---
 
+<div class="footer-socials" aria-label="Social links">
+  <a
+    href="https://dune.com"
+    target="_blank"
+    rel="noopener"
+    class="footer-x"
+    aria-label="Dune"
+  >
+    <DuneIcon />
+  </a>
+  <a
+    href="https://x.com/giedi_xyz"
+    target="_blank"
+    rel="noopener"
+    class="footer-x"
+    aria-label="X"
+  >
+    <XIcon />
+  </a>
+</div>
+
 <footer class="footer">
   <div class="col">
     <h4>Contact</h4>
-    <a
-      href="https://x.com/giedi_xyz"
-      target="_blank"
-      rel="noopener"
-      class="footer-x"
-      aria-label="X"
-    >
-      <XIcon />
-    </a>
-    <a
-      href="https://dune.com"
-      target="_blank"
-      rel="noopener"
-      class="footer-x"
-      aria-label="Dune"
-    >
-      <DuneIcon />
-    </a>
     <a href="mailto:hi@giedi.xyz">HI@GIEDI.XYZ</a>
     <a href="/contact">START A FORGE</a>
     <a href="#top">BACK TO THE TOP</a>
@@ -39,10 +42,27 @@ const year = new Date().getFullYear();
 <div class="wordmark" aria-hidden="true">GIEDI</div>
 
 <style>
+  /* Row of social icons centered above the two footer columns. */
+  .footer-socials {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 22px;
+    padding: 18px 0 6px;
+    border-top: 1px dashed var(--line);
+    margin-top: 24px;
+  }
+  .footer-socials .footer-x {
+    padding: 6px;
+  }
   .footer-x {
     display: inline-flex !important;
     align-items: center;
     gap: 8px;
+  }
+  .footer-socials .footer-x :global(svg) {
+    width: 18px;
+    height: 18px;
   }
   .footer-x :global(svg) {
     width: 11px;

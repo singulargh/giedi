@@ -11,9 +11,13 @@ const stats = [
 
 // Real work entries — each dashboard / piece of research / infra job lives as a
 // markdown file in src/content/work/. Drafts are hidden; order is newest first.
-const entries = (await getCollection("work", ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+const allEntries = (
+  await getCollection("work", ({ data }) => !data.draft)
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Home only shows the 5 most recent. Full archive lives at /work.
+const entries = allEntries.slice(0, 5);
+const hasMore = allEntries.length > entries.length;
 const lead = entries[0];
 const rest = entries.slice(1);
 ---
@@ -39,13 +43,13 @@ const rest = entries.slice(1);
           investors all read the same truth.
         </p>
         <div class="kicker">SERVICES</div>
-        <p class="note">
-          ▸ Dune dashboards &amp; spellbook contributions<br />
-          ▸ Onchain research &amp; written reports<br />
-          ▸ Tokenomics &amp; incentive analysis<br />
-          ▸ Custom data pipelines, ETL, APIs, webhooks<br />
-          ▸ Growth &amp; BD analytics for onchain projects
-        </p>
+        <ul class="services">
+          <li>Dune dashboards &amp; spellbook contributions</li>
+          <li>Onchain research &amp; written reports</li>
+          <li>Tokenomics &amp; incentive analysis</li>
+          <li>Custom data pipelines, ETL, APIs, webhooks</li>
+          <li>Growth &amp; BD analytics for onchain projects</li>
+        </ul>
       </div>
 
       <div class="forge-icon forge-icon-right">
@@ -69,9 +73,7 @@ const rest = entries.slice(1);
         <div class="work-list">
           <div class="section-head">
             <div class="label">Forged work</div>
-            <div class="pager">
-              P[1]/{entries.length}
-            </div>
+            <a class="pager" href="/work">SEE ALL →</a>
           </div>
 
           {lead && (
@@ -113,6 +115,12 @@ const rest = entries.slice(1);
               </div>
             </a>
           ))}
+
+          {hasMore && (
+            <a class="work-all" href="/work">
+              See the full archive of {allEntries.length} entries →
+            </a>
+          )}
         </div>
       )
     }
@@ -141,6 +149,17 @@ const rest = entries.slice(1);
   .forge-copy .lead { margin-left: auto; margin-right: auto; }
   .forge-copy .kicker { text-align: center; }
   .forge-copy .note { text-align: left; display: inline-block; }
+  .services {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 12px;
+    color: var(--ink-dim);
+    font-size: 12px;
+    text-align: center;
+  }
+  .services li {
+    padding: 3px 0;
+  }
 
   @media (max-width: 860px) {
     .forge-stack {
@@ -156,6 +175,7 @@ const rest = entries.slice(1);
     display: grid;
     gap: 24px;
     color: inherit;
+    align-items: center;
   }
   .work-lead {
     grid-template-columns: 300px 1fr;
@@ -197,8 +217,33 @@ const rest = entries.slice(1);
   }
   .work-row .rd { font-size: 12px; color: var(--ink-dim); }
   .work-lead:hover .work-title, .work-row:hover .rt { color: var(--hi); }
+  .work-all {
+    display: inline-block;
+    margin-top: 18px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .work-all:hover { color: var(--hi); }
+  a.pager { text-decoration: none; }
 
   @media (max-width: 860px) {
-    .work-lead, .work-row { grid-template-columns: 1fr; }
+    /* Stack thumb over text on mobile, but keep the thumb compact and
+       give it breathing room so entries don't feel "pegadas arriba". */
+    .work-lead, .work-row {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      justify-items: start;
+      padding: 18px 0;
+    }
+    .work-thumb {
+      width: 100%;
+      max-width: 260px;
+      aspect-ratio: 4/3;
+      font-size: 28px;
+    }
+    .work-row .rt { font-size: 22px; line-height: 1.1; }
+    .work-title { font-size: 14px; }
   }
 </style>

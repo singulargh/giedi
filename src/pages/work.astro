@@ -1,0 +1,136 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+const entries = (
+  await getCollection("work", ({ data }) => !data.draft)
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit" });
+---
+
+<Base
+  title="Work · Giedi"
+  description="Archive of every dashboard, research piece and data pipeline Giedi has forged."
+>
+  <Nav />
+
+  <section class="work-archive">
+    <div class="chapter-tag">
+      ARCHIVE <span class="sep">·</span> <span class="state">{entries.length} ENTRIES</span>
+    </div>
+    <h2 class="panel-title">Forged work.</h2>
+    <p class="lead">
+      Every dashboard, research piece and data pipeline we have shipped.
+      Newest first. Click any entry to open the live artifact.
+    </p>
+
+    {entries.length === 0 && (
+      <p class="empty">
+        No entries yet. First deliverables will land here soon.
+      </p>
+    )}
+
+    <div class="archive-list">
+      {entries.map((p) => (
+        <a
+          class="archive-row"
+          href={p.data.link ?? `#`}
+          target={p.data.link ? "_blank" : undefined}
+          rel={p.data.link ? "noopener" : undefined}
+        >
+          <div class="a-date">{fmt(p.data.date)}</div>
+          <div class="a-body">
+            <div class="a-meta">
+              {p.data.kind.toUpperCase()}
+              {p.data.client ? ` · ${p.data.client}` : ""}
+              {p.data.chain ? ` · ${p.data.chain}` : ""}
+            </div>
+            <h3 class="a-title">{p.data.title}</h3>
+            <p class="a-excerpt">{p.data.excerpt}</p>
+            {p.data.tags.length > 0 && (
+              <div class="a-tags">
+                {p.data.tags.map((t) => <span class="a-tag">#{t}</span>)}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <Footer />
+</Base>
+
+<style>
+  .work-archive {
+    padding: 36px 4px 56px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .empty {
+    color: var(--ink-mute);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 40px 0;
+  }
+  .archive-list {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .archive-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 24px;
+    padding: 18px 0;
+    border-bottom: 1px dashed var(--line);
+    color: inherit;
+    align-items: start;
+  }
+  .archive-row:hover .a-title { color: var(--hi); }
+  .a-date {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    padding-top: 4px;
+  }
+  .a-meta {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .a-title {
+    font-family: "StarCrush", monospace;
+    font-size: 28px;
+    letter-spacing: 1px;
+    color: var(--ink);
+    margin: 0 0 6px;
+    font-weight: 400;
+  }
+  .a-excerpt {
+    color: var(--ink-dim);
+    font-size: 12px;
+    margin: 0 0 8px;
+    max-width: 680px;
+  }
+  .a-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .a-tag {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--ink-mute);
+    text-transform: lowercase;
+  }
+
+  @media (max-width: 640px) {
+    .archive-row { grid-template-columns: 1fr; gap: 6px; }
+    .a-date { padding-top: 0; }
+    .a-title { font-size: 22px; }
+  }
+</style>
