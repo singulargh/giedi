@@ -1,13 +1,32 @@
 ---
+import XIcon from "./XIcon.astro";
+import DuneIcon from "./DuneIcon.astro";
 const year = new Date().getFullYear();
 ---
 
-<footer id="contact" class="footer">
+<footer class="footer">
   <div class="col">
     <h4>Contact</h4>
-    <a href="https://x.com" target="_blank" rel="noopener">TWITTER / X</a>
-    <a href="#">DISCORD</a>
-    <a href="mailto:gm@giedi.xyz">GM@GIEDI.XYZ</a>
+    <a
+      href="https://x.com/giedi_xyz"
+      target="_blank"
+      rel="noopener"
+      class="footer-x"
+      aria-label="X"
+    >
+      <XIcon />
+    </a>
+    <a
+      href="https://dune.com"
+      target="_blank"
+      rel="noopener"
+      class="footer-x"
+      aria-label="Dune"
+    >
+      <DuneIcon />
+    </a>
+    <a href="mailto:hi@giedi.xyz">HI@GIEDI.XYZ</a>
+    <a href="/contact">START A FORGE</a>
     <a href="#top">BACK TO THE TOP</a>
   </div>
   <div class="col">
@@ -18,3 +37,18 @@ const year = new Date().getFullYear();
 </footer>
 
 <div class="wordmark" aria-hidden="true">GIEDI</div>
+
+<style>
+  .footer-x {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+  .footer-x :global(svg) {
+    width: 11px;
+    height: 11px;
+    display: block;
+    color: var(--ink-dim);
+  }
+  .footer-x:hover :global(svg) { color: var(--hi); }
+</style>

@@ -31,16 +31,26 @@
       //  · posterized into halftone stripes
       //  · warm ember glow that follows the cursor
       //  · transparent where the field is "cold" so black bg shows through
+      // Pick highp only if the device really supports it; otherwise mediump.
+      // Some mobile GPUs (older PowerVR / Mali) silently fall back to mediump
+      // in fragment shaders, which produces banding/block artifacts on our
+      // fBm + domain-warped noise. Better to know and author conservatively.
+      const hpf =
+        gl.getShaderPrecisionFormat?.(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT) ?? null;
+      const hasHighp = !!hpf && hpf.precision > 0;
+      const PRECISION = hasHighp ? "highp" : "mediump";
+
       const FS = `
-        precision highp float;
+        precision ${PRECISION} float;
         uniform vec2  uRes;
         uniform float uTime;
         uniform vec2  uMouse;
 
+        // Classic sin-hash — keeps intermediate values small so mediump
+        // fragment shaders on mobile don't lose precision (no p*p terms,
+        // no growing domain). Output is in [0,1).
         float hash(vec2 p){
-          p = fract(p*vec2(123.34, 456.21));
-          p += dot(p, p+45.32);
-          return fract(p.x*p.y);
+          return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
         }
         float noise(vec2 p){
           vec2 i = floor(p); vec2 f = fract(p);
@@ -53,9 +63,11 @@
         }
         float fbm(vec2 p){
           float v = 0.0; float a = 0.5;
-          for (int i = 0; i < 5; i++) {
+          // 4 octaves instead of 5 — on mobile the 5th octave magnified
+          // the noise domain past the safe range for mediump.
+          for (int i = 0; i < 4; i++) {
             v += a*noise(p);
-            p *= 2.07;
+            p = p*2.03 + 17.0;
             a *= 0.5;
           }
           return v;
@@ -150,9 +162,12 @@
       });
 
       function resize() {
-        const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
         const w = window.innerWidth;
         const h = window.innerHeight;
+        // Mobile: cap DPR more aggressively. High DPR on small screens
+        // means huge gl_FragCoord values which amplify precision issues.
+        const dprCap = w < 760 ? 1.25 : 1.75;
+        const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
         canvas!.width = Math.floor(w * dpr);
         canvas!.height = Math.floor(h * dpr);
         canvas!.style.width = w + "px";

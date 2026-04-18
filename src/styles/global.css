@@ -28,6 +28,7 @@ html, body {
   font-size: 14px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 body { position: relative; }
@@ -148,7 +149,12 @@ a:hover { color: var(--hi); }
 .forge-piece {
   width: 560px;
   justify-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
+.forge-piece .halftone-stage { width: 100%; }
 
 /* ——— Vision piece stack ——— */
 .vision-piece {
@@ -435,8 +441,14 @@ h3.sub.forge {
   .hero-showpiece { max-width: 640px; justify-self: center; justify-content: center; }
   .hero-showpiece .halftone-stage { max-width: 300px; }
   .forge-head { grid-template-columns: 1fr; }
-  .forge-piece { width: 420px; justify-self: center; }
-  .vision-piece { align-items: center; }
+  .forge-piece {
+    width: 100%;
+    max-width: 420px;
+    justify-self: center;
+  }
+  .forge-piece .halftone-stage { max-width: 100%; }
+  .vision-piece { align-items: center; width: 100%; }
+  .vision-piece .halftone-stage.lg { max-width: 100%; }
   .vision-rock { align-self: center; }
   h2.panel-title { font-size: 46px; }
   .stats { grid-template-columns: repeat(2, 1fr); }

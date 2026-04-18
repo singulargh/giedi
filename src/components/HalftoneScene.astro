@@ -115,58 +115,52 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
   function buildAnvil() {
     const g = new THREE.Group();
     const m = baseMat();
+    const D = 0.95; // depth (z)
 
-    // Symmetric pixel-art style anvil: flared base, narrow waist,
-    // wide top plate that tapers out to a pointed horn on BOTH sides.
-    const p = new THREE.Shape();
-    p.moveTo(-1.10, -1.10); // base bottom-left
-    p.lineTo( 1.10, -1.10); // base bottom-right
-    p.lineTo( 0.95, -0.80); // base shoulder
-    p.lineTo( 0.70, -0.60); // inward step
-    p.lineTo( 0.45, -0.30); // waist
-    p.lineTo( 0.45,  0.10); // narrowest waist
-    p.lineTo( 0.70,  0.25); // flare out
-    p.lineTo( 0.95,  0.35); // top shoulder
-    p.lineTo( 1.00,  0.75); // top flat start
-    p.lineTo( 2.10,  0.55); // horn right tip
-    p.lineTo( 1.00,  0.95); // top flat end (front lip)
-    p.lineTo(-1.00,  0.95); // top flat (back lip)
-    p.lineTo(-2.10,  0.55); // horn left tip
-    p.lineTo(-1.00,  0.75);
-    p.lineTo(-0.95,  0.35);
-    p.lineTo(-0.70,  0.25);
-    p.lineTo(-0.45,  0.10);
-    p.lineTo(-0.45, -0.30);
-    p.lineTo(-0.70, -0.60);
-    p.lineTo(-0.95, -0.80);
-    p.lineTo(-1.10, -1.10);
-    p.closePath();
+    // ——— Top plate: wide flat slab.
+    const topPlate = new THREE.Mesh(new THREE.BoxGeometry(2.00, 0.28, D), m);
+    topPlate.position.y = 0.70;
+    g.add(topPlate);
 
-    const body = new THREE.Mesh(
-      new THREE.ExtrudeGeometry(p, {
-        depth: 1.05,
-        bevelEnabled: true,
-        bevelThickness: 0.06,
-        bevelSize: 0.05,
-        bevelSegments: 2,
-        curveSegments: 4,
-      }),
-      m,
-    );
-    body.geometry.translate(0, 0, -0.525);
-    g.add(body);
+    // ——— Horns: four-sided cones extending out from both sides of the top plate.
+    function horn(dir: number) {
+      const h = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.85, 4), m);
+      h.rotation.z = (dir > 0 ? -1 : 1) * Math.PI / 2;
+      h.rotation.x = Math.PI / 4; // square cross-section aligned flat
+      h.position.set(dir * 1.40, 0.70, 0);
+      g.add(h);
+    }
+    horn(+1);
+    horn(-1);
 
-    // Dark stain / scorch patch on top face.
-    const stain = new THREE.Mesh(
-      new THREE.BoxGeometry(1.4, 0.02, 0.85),
-      new THREE.MeshStandardMaterial({
-        color: 0x2a2a2a,
-        metalness: 0.4,
-        roughness: 0.9,
-      }),
-    );
-    stain.position.y = 0.96;
-    g.add(stain);
+    // ——— Under-plate: narrower lip below the top plate.
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.14, D * 0.9), m);
+    lip.position.y = 0.48;
+    g.add(lip);
+
+    // ——— Neck: narrow waist connecting top to base.
+    const neck = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.55, D * 0.75), m);
+    neck.position.y = 0.12;
+    g.add(neck);
+
+    // ——— Base crown: slight widening before the base.
+    const crown = new THREE.Mesh(new THREE.BoxGeometry(1.20, 0.14, D * 0.9), m);
+    crown.position.y = -0.22;
+    g.add(crown);
+
+    // ——— Base body: wide trapezoidal footing.
+    const base = new THREE.Mesh(new THREE.BoxGeometry(1.85, 0.45, D), m);
+    base.position.y = -0.52;
+    g.add(base);
+
+    // ——— Feet: four small cube feet at each corner of the base.
+    const feetY = -0.85;
+    const fx = 0.75, fz = D * 0.35;
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx, sz]) => {
+      const f = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.16, 0.22), m);
+      f.position.set(sx * fx, feetY, sz * fz);
+      g.add(f);
+    });
 
     return g;
   }
@@ -206,13 +200,6 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
     const head = new THREE.Mesh(headGeo, m);
     head.position.y = 0.75;
     g.add(head);
-
-    // Striking caps on both ends (slightly squared to match reference).
-    const capGeo = new THREE.BoxGeometry(0.14, 0.78, 0.78);
-    const capL = new THREE.Mesh(capGeo, m);
-    capL.position.set(-0.65, 0.75, 0); g.add(capL);
-    const capR = new THREE.Mesh(capGeo, m);
-    capR.position.set( 0.65, 0.75, 0); g.add(capR);
 
     // Eye band: dark horizontal seam where the handle passes through.
     const eye = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.08, 0.62), dark);

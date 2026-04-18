@@ -1,0 +1,28 @@
+---
+// Dune glyph. Uses currentColor so it inherits the link's color.
+export interface Props {
+  size?: number | string;
+  class?: string;
+}
+const { size = "1em", class: className = "" } = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 16 15"
+  width={size}
+  height={size}
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+  class={className}
+>
+  <path
+    fill="currentColor"
+    d="M15.071 7.50483C15.0681 10.4374 13.3299 13.2188 10.4518 14.411C7.5736 15.6032 4.37766 14.8655 2.302 12.7939L15.071 7.50483Z"
+  ></path>
+  <path
+    fill="currentColor"
+    d="M4.72687 0.589881C8.54346 -0.990991 12.919 0.82141 14.4999 4.63799C14.7395 5.21639 14.901 5.80766 14.9895 6.40006L1.57848 11.9551C1.22221 11.4736 0.918333 10.9413 0.678752 10.3629C-0.902126 6.5463 0.910271 2.17077 4.72687 0.589881Z"
+  ></path>
+</svg>

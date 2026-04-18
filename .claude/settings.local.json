@@ -14,7 +14,12 @@
       "Bash(grep -oE 'three[^<>\"]{0,80}' /tmp/dragonfly.html)",
       "Bash(grep -oE 'webgl[^<>\"]{0,80}' /tmp/dragonfly.html)",
       "Bash(rm \"C:/Users/josep/Documents/GitHub/giedi/src/components/BackgroundLogos.astro\")",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(node -e \"const fs=require\\('fs'\\); const b=fs.readFileSync\\('public/fonts/StarCrush.ttf'\\).toString\\('base64'\\); console.log\\(b.length\\); fs.writeFileSync\\('.tmp_font_b64.txt', b\\);\")",
+      "Bash(node -e 'const fs=require\\('\\\\''fs'\\\\''\\); const b=fs.readFileSync\\('\\\\''.tmp_font_b64.txt'\\\\'','\\\\''utf8'\\\\''\\); const svg=`<svg xmlns='\\\\''http://www.w3.org/2000/svg'\\\\'' viewBox='\\\\''0 0 512 512'\\\\'' width='\\\\''512'\\\\'' height='\\\\''512'\\\\''> *)",
+      "Bash(node -e \"try { require.resolve\\('sharp'\\); console.log\\('yes'\\); } catch { console.log\\('no'\\); }\")",
+      "Bash(node -e ' *)",
+      "Bash(node -e \"try { require.resolve\\('@resvg/resvg-js'\\); console.log\\('yes'\\); } catch { console.log\\('no'\\); }\")"
     ]
   }
 }

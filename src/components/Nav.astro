@@ -1,15 +1,15 @@
 ---
+import XIcon from "./XIcon.astro";
+import DuneIcon from "./DuneIcon.astro";
+
 const links = [
-  { href: "#work", label: "[WORK]" },
-  { href: "#services", label: "[SERVICES]" },
-  { href: "#blog", label: "[BLOG]" },
-  { href: "#contact", label: "[CONTACT]" },
-  { href: "https://x.com", label: "[X]", external: true },
+  { href: "#work", label: "WORK" },
+  { href: "/contact", label: "CONTACT" },
 ];
 ---
 
 <nav class="nav">
-  <a href="#top" class="brand" aria-label="Giedi">
+  <a href="/" class="brand" aria-label="Giedi home">
     <span class="brand-g">G</span>
   </a>
   <div class="nav-links">
@@ -23,5 +23,47 @@ const links = [
         </a>
       ))
     }
+    <a
+      href="https://dune.com"
+      target="_blank"
+      rel="noopener"
+      class="nav-icon"
+      aria-label="Dune"
+    >
+      <DuneIcon />
+    </a>
+    <a
+      href="https://x.com/giedi_xyz"
+      target="_blank"
+      rel="noopener"
+      class="nav-icon"
+      aria-label="X / Twitter"
+    >
+      <XIcon />
+    </a>
   </div>
 </nav>
+
+<style>
+  /* Match cap-height of the surrounding text, not full em-box.
+     A capital "W" only occupies ~0.7em, while an SVG glyph fills the full
+     viewBox — so matching to 1em makes icons visually taller than letters. */
+  .nav-icon { padding: 4px 8px; display: inline-flex; align-items: center; }
+  .nav-icon :global(svg) {
+    width: 0.82em;
+    height: 0.82em;
+    display: block;
+  }
+
+  /* Mobile: stack nav vertically — brand centered on top, links below. */
+  @media (max-width: 640px) {
+    .nav {
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-links {
+      justify-content: center;
+    }
+  }
+</style>

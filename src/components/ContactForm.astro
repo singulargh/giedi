@@ -1,0 +1,194 @@
+---
+// Reusable contact form. Works on multiple places on a page because all DOM
+// lookups are scoped to each form element (no shared IDs).
+---
+
+<form class="forge-form" data-forge-form autocomplete="off" novalidate>
+  <div class="field">
+    <label>Project / Protocol</label>
+    <input name="project" type="text" required maxlength="80" placeholder="e.g. Giedi Labs" />
+  </div>
+
+  <div class="row">
+    <div class="field">
+      <label>X account</label>
+      <input name="xhandle" type="text" required maxlength="40" placeholder="@handle" />
+    </div>
+    <div class="field">
+      <label>Telegram</label>
+      <input name="telegram" type="text" required maxlength="40" placeholder="@username" />
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Email</label>
+    <input name="email" type="email" required maxlength="120" placeholder="you@protocol.xyz" />
+  </div>
+
+  <div class="field">
+    <label>What do you need?</label>
+    <textarea name="message" rows="6" required maxlength="1200" placeholder="Dashboards, research, data pipelines, tokenomics, growth analytics..."></textarea>
+  </div>
+
+  <div class="field captcha">
+    <label>
+      Prove you are not a bot: <span data-captcha-q class="captcha-q">…</span>
+    </label>
+    <input name="captcha" type="text" inputmode="numeric" required maxlength="6" placeholder="answer" />
+  </div>
+
+  {/* honeypot, hidden from humans */}
+  <div class="hp" aria-hidden="true">
+    <label>Leave this empty</label>
+    <input type="text" name="website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="actions">
+    <button type="submit" class="btn primary">SEND TO THE FORGE</button>
+    <span data-form-status class="form-status" role="status"></span>
+  </div>
+</form>
+
+<style>
+  .forge-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 720px;
+    margin-top: 22px;
+  }
+  .forge-form .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .forge-form .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .forge-form label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--ink-mute);
+  }
+  .forge-form input,
+  .forge-form textarea {
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--ink);
+    border: 1px solid var(--line-strong);
+    padding: 10px 12px;
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    outline: none;
+    border-radius: 0;
+  }
+  .forge-form input:focus,
+  .forge-form textarea:focus {
+    border-color: var(--hi);
+  }
+  .forge-form textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  .captcha-q {
+    color: var(--ink);
+    font-family: "StarCrush", monospace;
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-left: 8px;
+  }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  .form-status {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--ink-dim);
+  }
+  .form-status.ok   { color: var(--ink); }
+  .form-status.err  { color: #ff6b6b; }
+  @media (max-width: 700px) {
+    .forge-form .row { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  // Initialize every forge form on the page. Everything is scoped to each form.
+  function roll(qEl: HTMLElement) {
+    const a = Math.floor(Math.random() * 8) + 2;
+    const b = Math.floor(Math.random() * 8) + 2;
+    qEl.textContent = `${a} + ${b} = ?`;
+    qEl.dataset.answer = String(a + b);
+  }
+
+  function wire(form: HTMLFormElement) {
+    const qEl = form.querySelector<HTMLElement>("[data-captcha-q]");
+    const status = form.querySelector<HTMLElement>("[data-form-status]");
+    const captchaInput = form.querySelector<HTMLInputElement>('input[name="captcha"]');
+    if (!qEl || !status || !captchaInput) return;
+    roll(qEl);
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      status.className = "form-status";
+      status.textContent = "";
+
+      const fd = new FormData(form);
+
+      // Honeypot: bot filled the hidden field → pretend success, do nothing.
+      if ((fd.get("website") as string)?.trim()) {
+        status.className = "form-status ok";
+        status.textContent = "Sent.";
+        form.reset();
+        roll(qEl);
+        return;
+      }
+
+      const required = ["project", "xhandle", "telegram", "email", "message", "captcha"];
+      for (const k of required) {
+        if (!(fd.get(k) as string)?.trim()) {
+          status.className = "form-status err";
+          status.textContent = "Fill every field, smith.";
+          return;
+        }
+      }
+
+      const email = String(fd.get("email") || "");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        status.className = "form-status err";
+        status.textContent = "That email does not look right.";
+        return;
+      }
+
+      const ans = String(fd.get("captcha") || "").trim();
+      if (ans !== qEl.dataset.answer) {
+        status.className = "form-status err";
+        status.textContent = "Captcha failed. Try again.";
+        roll(qEl);
+        captchaInput.value = "";
+        return;
+      }
+
+      // No backend yet: log the payload and show success. Swap for a fetch() later.
+      const payload = Object.fromEntries(fd.entries());
+      delete (payload as any).captcha;
+      delete (payload as any).website;
+      console.log("[forge-form]", payload);
+
+      status.className = "form-status ok";
+      status.textContent = "Order received. We will be in touch.";
+      form.reset();
+      roll(qEl);
+    });
+  }
+
+  document.querySelectorAll<HTMLFormElement>("form[data-forge-form]").forEach(wire);
+</script>
