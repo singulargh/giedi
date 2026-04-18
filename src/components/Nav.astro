@@ -55,20 +55,12 @@ const links = [
     display: block;
   }
 
-  /* Mobile: keep the same layout as desktop — brand on the left, links
-     on the right, all on one row. Tighter padding/spacing so nothing
-     wraps to a second line on narrow phones. */
+  /* Mobile: same horizontal layout as desktop — brand left, links right,
+     same gap/padding as desktop so the spacing feels consistent. We just
+     shrink the logo a touch so everything fits on one row. */
   @media (max-width: 640px) {
     .nav-links {
       flex-wrap: nowrap;
-      gap: 0;
-      font-size: 11px;
-    }
-    .nav-links a {
-      padding: 4px 4px;
-    }
-    .nav-icon {
-      padding: 4px 6px !important;
     }
     .brand-g {
       font-size: 36px;

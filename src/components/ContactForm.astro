@@ -11,12 +11,12 @@
 
   <div class="row">
     <div class="field">
-      <label>X account</label>
-      <input name="xhandle" type="text" required maxlength="40" placeholder="@handle" />
+      <label>X account <span class="opt">(optional)</span></label>
+      <input name="xhandle" type="text" maxlength="40" placeholder="@handle" />
     </div>
     <div class="field">
-      <label>Telegram</label>
-      <input name="telegram" type="text" required maxlength="40" placeholder="@username" />
+      <label>Telegram <span class="opt">(optional)</span></label>
+      <input name="telegram" type="text" maxlength="40" placeholder="@username" />
     </div>
   </div>
 
@@ -73,6 +73,13 @@
     text-transform: uppercase;
     color: var(--ink-mute);
   }
+  .forge-form label .opt {
+    letter-spacing: 1px;
+    text-transform: none;
+    color: var(--line-strong);
+    margin-left: 4px;
+    font-size: 10px;
+  }
   .forge-form input,
   .forge-form textarea {
     background: rgba(0, 0, 0, 0.6);
@@ -99,6 +106,13 @@
     font-size: 22px;
     letter-spacing: 2px;
     margin-left: 8px;
+    /* Keep the whole "a + b = ?" on one line so the "?" doesn't end up
+       orphaned on a second row when the label wraps on mobile. */
+    display: inline-block;
+    white-space: nowrap;
+  }
+  @media (max-width: 420px) {
+    .captcha-q { font-size: 18px; letter-spacing: 1px; margin-left: 6px; }
   }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   .actions {
@@ -136,7 +150,7 @@
     if (!qEl || !status || !captchaInput) return;
     roll(qEl);
 
-    form.addEventListener("submit", (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       status.className = "form-status";
       status.textContent = "";
@@ -152,7 +166,8 @@
         return;
       }
 
-      const required = ["project", "xhandle", "telegram", "email", "message", "captcha"];
+      // Only these four are truly required. X / Telegram are nice-to-have.
+      const required = ["project", "email", "message", "captcha"];
       for (const k of required) {
         if (!(fd.get(k) as string)?.trim()) {
           status.className = "form-status err";
@@ -177,16 +192,46 @@
         return;
       }
 
-      // No backend yet: log the payload and show success. Swap for a fetch() later.
-      const payload = Object.fromEntries(fd.entries());
-      delete (payload as any).captcha;
-      delete (payload as any).website;
-      console.log("[forge-form]", payload);
+      // Delivery via FormSubmit.co AJAX endpoint → email to hi@giedi.xyz.
+      // Our math captcha + honeypot above are the first barrier; we disable
+      // FormSubmit's own captcha because otherwise the AJAX response would
+      // ask us to solve theirs too.
+      const payload: Record<string, string> = {
+        project: String(fd.get("project") || ""),
+        xhandle: String(fd.get("xhandle") || ""),
+        telegram: String(fd.get("telegram") || ""),
+        email: String(fd.get("email") || ""),
+        message: String(fd.get("message") || ""),
+        _subject: `[Forge order] ${fd.get("project")}`,
+        _captcha: "false",
+        _template: "table",
+      };
 
-      status.className = "form-status ok";
-      status.textContent = "Order received. We will be in touch.";
-      form.reset();
-      roll(qEl);
+      status.className = "form-status";
+      status.textContent = "Sending to the forge…";
+
+      try {
+        const res = await fetch(
+          "https://formsubmit.co/ajax/hi@giedi.xyz",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+          },
+        );
+        if (!res.ok) throw new Error("bad status");
+        status.className = "form-status ok";
+        status.textContent = "Order received. We will be in touch.";
+        form.reset();
+        roll(qEl);
+      } catch {
+        status.className = "form-status err";
+        status.textContent =
+          "The forge is cold right now. Write us directly at hi@giedi.xyz.";
+      }
     });
   }
 

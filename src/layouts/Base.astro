@@ -5,12 +5,47 @@ import ShaderBackdrop from "../components/ShaderBackdrop.astro";
 export interface Props {
   title?: string;
   description?: string;
+  /** Optional canonical path override; defaults to current URL pathname. */
+  path?: string;
+  /** og:type — "website" for landing pages, "article" for blog/work posts. */
+  ogType?: "website" | "article";
+  /** Keywords shown in <meta name="keywords"> — low SEO weight but harmless. */
+  keywords?: string;
 }
 
+const SITE = "https://giedi.xyz";
+
 const {
-  title = "Giedi, The Onchain Data Forge",
-  description = "Giedi is a blockchain data agency. We forge Dune Analytics dashboards, on-chain research and custom data infrastructure for protocols.",
+  title = "Giedi, Onchain Data Forge · Dune Analytics dashboards, research and data infrastructure",
+  description = "Giedi is a blockchain data agency. We design, build and maintain Dune Analytics dashboards, onchain research and custom data infrastructure for protocols, DAOs, chains and onchain projects.",
+  path = Astro.url.pathname,
+  ogType = "website",
+  keywords = "onchain data, dune analytics, blockchain data agency, crypto dashboards, onchain analytics, dune dashboard agency, blockchain analytics, dune experts, onchain research, tokenomics analysis, crypto data pipelines, web3 analytics",
 } = Astro.props;
+
+// Canonical URL — always absolute, no trailing slash (matches our vercel cleanUrls setting).
+const canonical = new URL(
+  path.replace(/\/$/, "") || "/",
+  SITE,
+).toString();
+
+// JSON-LD Organization. Helps Google pick up social profiles, logo and
+// tagline in the Knowledge Panel / SERP sitelinks.
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Giedi",
+  alternateName: "Giedi Labs",
+  description:
+    "Onchain data agency, Dune Analytics dashboards, blockchain research and data infrastructure.",
+  url: SITE,
+  logo: `${SITE}/favicon-96x96.png`,
+  email: "hi@giedi.xyz",
+  sameAs: [
+    "https://x.com/giedi_xyz",
+    "https://dune.com",
+  ],
+};
 ---
 
 <!doctype html>
@@ -18,8 +53,17 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    {/* ——— Primary meta ——— */}
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="Giedi" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="canonical" href={canonical} />
+
+    {/* ——— Favicon / PWA ——— */}
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -27,11 +71,25 @@ const {
     <meta name="apple-mobile-web-app-title" content="Giedi" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#000000" />
+
+    {/* ——— Open Graph ——— */}
+    <meta property="og:type" content={ogType} />
+    <meta property="og:site_name" content="Giedi" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="/favicon.svg" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={`${SITE}/favicon-96x96.png`} />
+
+    {/* ——— Twitter ——— */}
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:image" content="/favicon.svg" />
+    <meta name="twitter:site" content="@giedi_xyz" />
+    <meta name="twitter:creator" content="@giedi_xyz" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${SITE}/favicon-96x96.png`} />
+
+    {/* ——— Fonts ——— */}
     <link
       rel="preload"
       href="/fonts/StarCrush.ttf"
@@ -45,6 +103,9 @@ const {
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+
+    {/* ——— Structured data ——— */}
+    <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
   </head>
   <body>
     <ShaderBackdrop />

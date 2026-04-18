@@ -27,9 +27,12 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
   .halftone-stage.md { max-width: 560px; }
   .halftone-stage.lg { max-width: 900px; }
   .halftone-canvas {
+    /* three.js sets inline width/height on resize; keep a fallback so the
+       canvas still fills the stage before JS has booted. */
     width: 100%;
     height: 100%;
     display: block;
+    max-width: 100%;
   }
   .halftone-label {
     position: absolute;
@@ -430,8 +433,6 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
     box.getSize(size);
     obj.position.sub(center);
     const maxDim = Math.max(size.x, size.y, size.z);
-    const fitDist = (maxDim * 0.5) / Math.tan((camera.fov * Math.PI) / 360);
-    camera.position.z = fitDist * 1.35;
     camera.position.y = 0;
     camera.lookAt(0, 0, 0);
 
@@ -446,19 +447,51 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
       5.5;
     halftone.uniforms.uDotSize.value = dotSize;
 
+    let lastW = 0, lastH = 0;
     function resize() {
       const r = stage.getBoundingClientRect();
-      const w = Math.max(1, r.width);
-      const h = Math.max(1, r.height);
-      renderer.setSize(w, h, false);
+      const w = Math.max(1, Math.round(r.width));
+      const h = Math.max(1, Math.round(r.height));
+      if (w === lastW && h === lastH) return;
+      lastW = w;
+      lastH = h;
+
+      // updateStyle: true so three.js also writes canvas.style.width/height
+      // and the displayed size matches the new stage dimensions (not just
+      // the internal drawing buffer).
+      renderer.setSize(w, h, true);
       composer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+
+      // Re-fit the camera distance every resize so the object stays
+      // fully in frame regardless of the stage's current aspect ratio.
+      const fovV = (camera.fov * Math.PI) / 180;
+      const fitV = (maxDim * 0.5) / Math.tan(fovV / 2);
+      const fitH = fitV / Math.max(0.0001, camera.aspect);
+      camera.position.z = Math.max(fitV, fitH) * 1.35;
+
       const dpr = renderer.getPixelRatio();
       halftone.uniforms.uResolution.value.set(w * dpr, h * dpr);
     }
     resize();
+
+    // Listen to both window resize AND the stage's own size changes.
+    // Media queries and flex reflow can resize the stage without the
+    // viewport changing at all — ResizeObserver catches those. We defer
+    // the first response to the next animation frame so CSS has time to
+    // settle before we read getBoundingClientRect.
     window.addEventListener("resize", resize);
+    let roPending = false;
+    const ro = new ResizeObserver(() => {
+      if (roPending) return;
+      roPending = true;
+      requestAnimationFrame(() => {
+        roPending = false;
+        resize();
+      });
+    });
+    ro.observe(stage);
 
     // Pause when off-screen
     let visible = true;

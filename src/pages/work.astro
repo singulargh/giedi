@@ -13,8 +13,9 @@ const fmt = (d: Date) =>
 ---
 
 <Base
-  title="Work · Giedi"
-  description="Archive of every dashboard, research piece and data pipeline Giedi has forged."
+  title="Work · Dune dashboards, onchain research & data pipelines by Giedi"
+  description="Archive of every Dune Analytics dashboard, onchain research piece and data pipeline forged by Giedi for protocols, DAOs, NFT projects and token launches across Ethereum, Solana and L2s."
+  keywords="dune dashboards portfolio, onchain research examples, blockchain analytics case studies, dune analytics work, crypto data agency portfolio"
 >
   <Nav />
 
@@ -25,7 +26,7 @@ const fmt = (d: Date) =>
     <h2 class="panel-title">Forged work.</h2>
     <p class="lead">
       Every dashboard, research piece and data pipeline we have shipped.
-      Newest first. Click any entry to open the live artifact.
+      Click any entry to open the live artifact.
     </p>
 
     {entries.length === 0 && (
@@ -68,7 +69,6 @@ const fmt = (d: Date) =>
 <style>
   .work-archive {
     padding: 36px 4px 56px;
-    border-bottom: 1px dashed var(--line);
   }
   .empty {
     color: var(--ink-mute);
