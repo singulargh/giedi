@@ -153,13 +153,59 @@
       const uT = gl.getUniformLocation(prog, "uTime");
       const uM = gl.getUniformLocation(prog, "uMouse");
 
-      // Cursor — smoothed
+      // Cursor / finger hot spot — smoothed.
+      // On desktop we track the mouse via pointermove. On mobile pointermove
+      // only fires while a finger is pressed and dragged, so we also listen
+      // to touchstart / touchmove (passive so they don't block scroll), and
+      // use scroll to drift the light vertically when the user just scrolls
+      // without actively touching — so there's always something alive
+      // following the user's gesture.
       let tmx = 0.5, tmy = 0.6;
       let mx = tmx, my = tmy;
+
+      function setFromClient(cx: number, cy: number) {
+        tmx = cx / window.innerWidth;
+        tmy = 1.0 - cy / window.innerHeight;
+      }
+
       window.addEventListener("pointermove", (e) => {
-        tmx = e.clientX / window.innerWidth;
-        tmy = 1.0 - e.clientY / window.innerHeight;
+        setFromClient(e.clientX, e.clientY);
       });
+      window.addEventListener(
+        "touchstart",
+        (e) => {
+          const t = e.touches[0];
+          if (t) setFromClient(t.clientX, t.clientY);
+        },
+        { passive: true },
+      );
+      window.addEventListener(
+        "touchmove",
+        (e) => {
+          const t = e.touches[0];
+          if (t) setFromClient(t.clientX, t.clientY);
+        },
+        { passive: true },
+      );
+
+      // Scroll-driven drift for mobile: when the user is scrolling the page
+      // we may not get pointer/touch events, but we can still animate the
+      // light by mapping the scroll position to a vertical sweep in uv
+      // space. Keep horizontal position where the last touch landed.
+      window.addEventListener(
+        "scroll",
+        () => {
+          const max = Math.max(
+            1,
+            document.documentElement.scrollHeight - window.innerHeight,
+          );
+          const ratio = Math.min(1, Math.max(0, window.scrollY / max));
+          // Top of the page → light near top of the screen (tmy ~ 0.85);
+          // bottom of the page → light near bottom (tmy ~ 0.15).
+          tmy = 0.85 - ratio * 0.7;
+        },
+        { passive: true },
+      );
 
       // On mobile, window.innerHeight changes every time the URL bar
       // slides in/out of view (which happens as you scroll). Resizing
