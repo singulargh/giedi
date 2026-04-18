@@ -1,0 +1,37 @@
+---
+import "../styles/global.css";
+import ShaderBackdrop from "../components/ShaderBackdrop.astro";
+
+export interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Giedi, The Onchain Data Forge",
+  description = "Giedi is a blockchain data agency. We forge Dune Analytics dashboards, on-chain research and custom data infrastructure for protocols.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/giedi-mark.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <ShaderBackdrop />
+    <div class="wrap">
+      <slot />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,509 @@
+---
+// Reusable 3D scene rendered with a halftone post-process.
+// Procedural geometry — no model files.
+export interface Props {
+  kind: "anvil" | "hammer" | "rock" | "crystal" | "gear" | "solana";
+  size?: "sm" | "md" | "lg";
+  label?: string;
+  class?: string;
+}
+const { kind, size = "md", label, class: className = "" } = Astro.props;
+---
+
+<div class={`halftone-stage ${size} ${className}`} data-kind={kind}>
+  <canvas class="halftone-canvas"></canvas>
+  {label && <div class="halftone-label">{label}</div>}
+</div>
+
+<style>
+  .halftone-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: block;
+    background: transparent;
+  }
+  .halftone-stage.sm { max-width: 360px; }
+  .halftone-stage.md { max-width: 560px; }
+  .halftone-stage.lg { max-width: 900px; }
+  .halftone-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .halftone-label {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "StarCrush", monospace;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--ink);
+    pointer-events: none;
+    text-shadow: 0 0 8px #000, 0 0 2px #000;
+  }
+</style>
+
+<script>
+  import * as THREE from "three";
+  import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+  import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+  import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
+
+  // ——— Halftone post-process shader ———
+  // Monochrome dot screen. Dot size scales with per-pixel luminance.
+  const HalftoneShader = {
+    uniforms: {
+      tDiffuse: { value: null as any },
+      uResolution: { value: new THREE.Vector2(1, 1) },
+      uDotSize: { value: 5.0 },
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform sampler2D tDiffuse;
+      uniform vec2  uResolution;
+      uniform float uDotSize;
+      varying vec2  vUv;
+
+      void main() {
+        vec4 c = texture2D(tDiffuse, vUv);
+        if (c.a < 0.02) { gl_FragColor = vec4(0.0); return; }
+
+        float lum = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+
+        vec2 pixel = vUv * uResolution;
+        vec2 cell  = mod(pixel, uDotSize) - (uDotSize * 0.5);
+        float cellDist = length(cell);
+
+        // Lift shadows so even dark-lit areas still draw visible dots.
+        float lm = pow(clamp(lum, 0.0, 1.0), 0.6);
+        float radius = (0.12 + lm * 0.48) * uDotSize;
+        float d = smoothstep(radius + 0.6, radius - 0.6, cellDist);
+
+        float scan = 0.94 + 0.06 * sin(pixel.y * 0.9);
+        float a = clamp(d * 1.15, 0.0, 1.0);
+        gl_FragColor = vec4(vec3(d * scan), a);
+      }
+    `,
+  };
+
+  // ——— Procedural geometry builders ———
+  function baseMat() {
+    return new THREE.MeshStandardMaterial({
+      color: 0xd6d6d6,
+      metalness: 0.75,
+      roughness: 0.38,
+      flatShading: true,
+    });
+  }
+  function woodMat() {
+    return new THREE.MeshStandardMaterial({
+      color: 0x7e6445,
+      metalness: 0.0,
+      roughness: 0.95,
+      flatShading: true,
+    });
+  }
+
+  function buildAnvil() {
+    const g = new THREE.Group();
+    const m = baseMat();
+
+    // Symmetric pixel-art style anvil: flared base, narrow waist,
+    // wide top plate that tapers out to a pointed horn on BOTH sides.
+    const p = new THREE.Shape();
+    p.moveTo(-1.10, -1.10); // base bottom-left
+    p.lineTo( 1.10, -1.10); // base bottom-right
+    p.lineTo( 0.95, -0.80); // base shoulder
+    p.lineTo( 0.70, -0.60); // inward step
+    p.lineTo( 0.45, -0.30); // waist
+    p.lineTo( 0.45,  0.10); // narrowest waist
+    p.lineTo( 0.70,  0.25); // flare out
+    p.lineTo( 0.95,  0.35); // top shoulder
+    p.lineTo( 1.00,  0.75); // top flat start
+    p.lineTo( 2.10,  0.55); // horn right tip
+    p.lineTo( 1.00,  0.95); // top flat end (front lip)
+    p.lineTo(-1.00,  0.95); // top flat (back lip)
+    p.lineTo(-2.10,  0.55); // horn left tip
+    p.lineTo(-1.00,  0.75);
+    p.lineTo(-0.95,  0.35);
+    p.lineTo(-0.70,  0.25);
+    p.lineTo(-0.45,  0.10);
+    p.lineTo(-0.45, -0.30);
+    p.lineTo(-0.70, -0.60);
+    p.lineTo(-0.95, -0.80);
+    p.lineTo(-1.10, -1.10);
+    p.closePath();
+
+    const body = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(p, {
+        depth: 1.05,
+        bevelEnabled: true,
+        bevelThickness: 0.06,
+        bevelSize: 0.05,
+        bevelSegments: 2,
+        curveSegments: 4,
+      }),
+      m,
+    );
+    body.geometry.translate(0, 0, -0.525);
+    g.add(body);
+
+    // Dark stain / scorch patch on top face.
+    const stain = new THREE.Mesh(
+      new THREE.BoxGeometry(1.4, 0.02, 0.85),
+      new THREE.MeshStandardMaterial({
+        color: 0x2a2a2a,
+        metalness: 0.4,
+        roughness: 0.9,
+      }),
+    );
+    stain.position.y = 0.96;
+    g.add(stain);
+
+    return g;
+  }
+
+  function buildHammer() {
+    const g = new THREE.Group();
+    const m = baseMat();
+    const w = woodMat();
+    const dark = new THREE.MeshStandardMaterial({
+      color: 0x2b2420,
+      metalness: 0.0,
+      roughness: 1.0,
+      flatShading: true,
+    });
+
+    // ——— Head: chunky block with chamfered octagonal ends (war-maul style).
+    // Octagon profile viewed from the end → extrude along head length.
+    const oct = new THREE.Shape();
+    const R = 0.46;
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+      const x = Math.cos(a) * R;
+      const y = Math.sin(a) * R;
+      if (i === 0) oct.moveTo(x, y); else oct.lineTo(x, y);
+    }
+    oct.closePath();
+    const headGeo = new THREE.ExtrudeGeometry(oct, {
+      depth: 1.25,
+      bevelEnabled: true,
+      bevelThickness: 0.07,
+      bevelSize: 0.06,
+      bevelSegments: 2,
+      curveSegments: 2,
+    });
+    headGeo.translate(0, 0, -0.625);
+    headGeo.rotateY(Math.PI / 2); // length along X
+    const head = new THREE.Mesh(headGeo, m);
+    head.position.y = 0.75;
+    g.add(head);
+
+    // Striking caps on both ends (slightly squared to match reference).
+    const capGeo = new THREE.BoxGeometry(0.14, 0.78, 0.78);
+    const capL = new THREE.Mesh(capGeo, m);
+    capL.position.set(-0.65, 0.75, 0); g.add(capL);
+    const capR = new THREE.Mesh(capGeo, m);
+    capR.position.set( 0.65, 0.75, 0); g.add(capR);
+
+    // Eye band: dark horizontal seam where the handle passes through.
+    const eye = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.08, 0.62), dark);
+    eye.position.y = 0.75;
+    g.add(eye);
+
+    // ——— Handle: short, stout shaft going downward.
+    const handlePts = [
+      new THREE.Vector2(0.095, -1.35),
+      new THREE.Vector2(0.12,  -1.20),
+      new THREE.Vector2(0.105, -1.05),
+      new THREE.Vector2(0.09,  -0.60),
+      new THREE.Vector2(0.09,   0.20),
+      new THREE.Vector2(0.11,   0.50),
+    ];
+    const handle = new THREE.Mesh(new THREE.LatheGeometry(handlePts, 18), w);
+    g.add(handle);
+
+    // Leather wraps: three dark rings along the grip.
+    for (let i = 0; i < 3; i++) {
+      const y = -0.25 - i * 0.32;
+      const wrap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13, 0.13, 0.16, 16),
+        dark,
+      );
+      wrap.position.y = y;
+      g.add(wrap);
+    }
+
+    // Pommel: rounded knob at the base of the handle.
+    const pommel = new THREE.Mesh(
+      new THREE.SphereGeometry(0.16, 16, 10),
+      m,
+    );
+    pommel.position.y = -1.38;
+    g.add(pommel);
+
+    // Slight tilt for dynamism.
+    g.rotation.z = Math.PI * 0.1;
+    return g;
+  }
+
+  function buildRock() {
+    const geo = new THREE.IcosahedronGeometry(1.35, 4);
+    const pos = geo.attributes.position as THREE.BufferAttribute;
+
+    // Pseudo-random hash from a 3D point → stable "noise".
+    const hash = (x: number, y: number, z: number) => {
+      const s = Math.sin(x * 12.9898 + y * 78.233 + z * 37.719) * 43758.5453;
+      return s - Math.floor(s);
+    };
+    const vnoise = (x: number, y: number, z: number) => {
+      const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+      const xf = x - xi,         yf = y - yi,         zf = z - zi;
+      const sx = xf * xf * (3 - 2 * xf);
+      const sy = yf * yf * (3 - 2 * yf);
+      const sz = zf * zf * (3 - 2 * zf);
+      const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+      const c000 = hash(xi,     yi,     zi    );
+      const c100 = hash(xi + 1, yi,     zi    );
+      const c010 = hash(xi,     yi + 1, zi    );
+      const c110 = hash(xi + 1, yi + 1, zi    );
+      const c001 = hash(xi,     yi,     zi + 1);
+      const c101 = hash(xi + 1, yi,     zi + 1);
+      const c011 = hash(xi,     yi + 1, zi + 1);
+      const c111 = hash(xi + 1, yi + 1, zi + 1);
+      return lerp(
+        lerp(lerp(c000, c100, sx), lerp(c010, c110, sx), sy),
+        lerp(lerp(c001, c101, sx), lerp(c011, c111, sx), sy),
+        sz,
+      );
+    };
+
+    for (let i = 0; i < pos.count; i++) {
+      const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+      // fBm — big lumps + medium facets + tiny grit
+      const n1 = vnoise(x * 1.3 + 2.0, y * 1.3, z * 1.3) - 0.5;
+      const n2 = vnoise(x * 3.1, y * 3.1 + 5.0, z * 3.1) - 0.5;
+      const n3 = vnoise(x * 7.0, y * 7.0, z * 7.0 + 9.0) - 0.5;
+      const displace = n1 * 0.55 + n2 * 0.28 + n3 * 0.12;
+      // Direction from center so it stays rock-shaped (not a puffed sphere).
+      const len = Math.sqrt(x * x + y * y + z * z) || 1;
+      const nx = x / len, ny = y / len, nz = z / len;
+      const d = displace * 0.55;
+      pos.setXYZ(i, x + nx * d, y + ny * d, z + nz * d);
+    }
+    geo.computeVertexNormals();
+
+    const mat = new THREE.MeshStandardMaterial({
+      color: 0xbdbdbd,
+      metalness: 0.15,
+      roughness: 0.95,
+      flatShading: true,
+    });
+    return new THREE.Mesh(geo, mat);
+  }
+
+  function buildCrystal() {
+    const g = new THREE.Group();
+    const geo = new THREE.OctahedronGeometry(1.25, 0);
+    geo.scale(1, 1.45, 1);
+    const main = new THREE.Mesh(geo, baseMat());
+    g.add(main);
+    // ring at equator (etched band)
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.95, 0.035, 6, 32),
+      baseMat(),
+    );
+    ring.rotation.x = Math.PI / 2;
+    g.add(ring);
+    return g;
+  }
+
+  function buildGear() {
+    const g = new THREE.Group();
+    const m = baseMat();
+
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.05, 0.22, 10, 28), m);
+    g.add(ring);
+
+    const teeth = 12;
+    for (let i = 0; i < teeth; i++) {
+      const theta = (i / teeth) * Math.PI * 2;
+      const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.22, 0.42), m);
+      tooth.position.set(Math.cos(theta) * 1.3, Math.sin(theta) * 1.3, 0);
+      tooth.rotation.z = theta + Math.PI / 2;
+      g.add(tooth);
+    }
+
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.5, 18), m);
+    hub.rotation.x = Math.PI / 2;
+    g.add(hub);
+
+    for (let i = 0; i < 5; i++) {
+      const spoke = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.12, 0.22), m);
+      spoke.rotation.z = (i / 5) * Math.PI * 2;
+      g.add(spoke);
+    }
+    return g;
+  }
+
+  function buildSolana() {
+    const g = new THREE.Group();
+    const m = baseMat();
+
+    // Three slanted parallelogram bars.
+    function bar(y: number, flip: boolean) {
+      const w = 2.2, h = 0.38, slant = 0.32;
+      const s = new THREE.Shape();
+      if (!flip) {
+        s.moveTo(-w / 2 + slant, -h / 2);
+        s.lineTo( w / 2,         -h / 2);
+        s.lineTo( w / 2 - slant,  h / 2);
+        s.lineTo(-w / 2,          h / 2);
+      } else {
+        s.moveTo(-w / 2,         -h / 2);
+        s.lineTo( w / 2 - slant, -h / 2);
+        s.lineTo( w / 2,          h / 2);
+        s.lineTo(-w / 2 + slant,  h / 2);
+      }
+      s.closePath();
+      const geo = new THREE.ExtrudeGeometry(s, {
+        depth: 0.22,
+        bevelEnabled: true,
+        bevelThickness: 0.04,
+        bevelSize: 0.04,
+        bevelSegments: 2,
+      });
+      geo.translate(0, 0, -0.11);
+      const mesh = new THREE.Mesh(geo, m);
+      mesh.position.y = y;
+      return mesh;
+    }
+    g.add(bar( 0.70, false));
+    g.add(bar( 0.00, true));
+    g.add(bar(-0.70, false));
+    g.rotation.x = -0.25;
+    return g;
+  }
+
+  function build(kind: string): THREE.Object3D {
+    switch (kind) {
+      case "anvil":   return buildAnvil();
+      case "hammer":  return buildHammer();
+      case "rock":    return buildRock();
+      case "crystal": return buildCrystal();
+      case "gear":    return buildGear();
+      case "solana":  return buildSolana();
+      default:        return buildRock();
+    }
+  }
+
+  // ——— Setup one stage ———
+  function setupStage(stage: HTMLElement) {
+    const canvas = stage.querySelector("canvas") as HTMLCanvasElement;
+    const kind = stage.dataset.kind || "rock";
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: "low-power",
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.setClearColor(0x000000, 0);
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+    camera.position.set(0, 0.2, 5.5);
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.2);
+    key.position.set(3, 4, 5);
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0xffffff, 1.1);
+    rim.position.set(-4, -1, -3);
+    scene.add(rim);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.25));
+
+    const obj = build(kind);
+    scene.add(obj);
+
+    // Center object + fit camera distance so nothing gets clipped.
+    const box = new THREE.Box3().setFromObject(obj);
+    const center = new THREE.Vector3();
+    const size = new THREE.Vector3();
+    box.getCenter(center);
+    box.getSize(size);
+    obj.position.sub(center);
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fitDist = (maxDim * 0.5) / Math.tan((camera.fov * Math.PI) / 360);
+    camera.position.z = fitDist * 1.35;
+    camera.position.y = 0;
+    camera.lookAt(0, 0, 0);
+
+    const composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const halftone = new ShaderPass(HalftoneShader);
+    composer.addPass(halftone);
+
+    const dotSize =
+      kind === "anvil" || kind === "hammer" ? 4.0 :
+      kind === "gear" ? 4.5 :
+      5.5;
+    halftone.uniforms.uDotSize.value = dotSize;
+
+    function resize() {
+      const r = stage.getBoundingClientRect();
+      const w = Math.max(1, r.width);
+      const h = Math.max(1, r.height);
+      renderer.setSize(w, h, false);
+      composer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      const dpr = renderer.getPixelRatio();
+      halftone.uniforms.uResolution.value.set(w * dpr, h * dpr);
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Pause when off-screen
+    let visible = true;
+    const io = new IntersectionObserver(
+      (entries) => { visible = entries[0].isIntersecting; },
+      { rootMargin: "80px" },
+    );
+    io.observe(stage);
+
+    // Mild cursor tilt (whole page)
+    let mx = 0, my = 0;
+    window.addEventListener("pointermove", (e) => {
+      mx = (e.clientX / window.innerWidth - 0.5) * 2;
+      my = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    let raf = 0;
+    function frame(t: number) {
+      if (visible) {
+        obj.rotation.y = t * 0.00035 + mx * 0.25;
+        obj.rotation.x = Math.sin(t * 0.00028) * 0.12 + my * -0.12;
+        composer.render();
+      }
+      raf = requestAnimationFrame(frame);
+    }
+    raf = requestAnimationFrame(frame);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) cancelAnimationFrame(raf);
+      else raf = requestAnimationFrame(frame);
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>(".halftone-stage").forEach(setupStage);
+</script>

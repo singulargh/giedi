@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(rm \"C:/Users/josep/Documents/GitHub/giedi/index.html\")",
+      "Bash(npm install *)",
+      "Bash(npx astro *)",
+      "WebFetch(domain:www.dxrg.ai)",
+      "WebFetch(domain:www.dragonfly.xyz)",
+      "Bash(curl -sL \"https://www.dxrg.ai/\" -A \"Mozilla/5.0\" -o /tmp/dxrg.html)",
+      "Bash(curl -sL \"https://www.dragonfly.xyz/\" -A \"Mozilla/5.0\" -o /tmp/dragonfly.html)",
+      "Read(//tmp/**)",
+      "Bash(grep -oE 'canvas[^<>]{0,200}' /tmp/dragonfly.html)",
+      "Bash(grep -oE 'three[^<>\"]{0,80}' /tmp/dragonfly.html)",
+      "Bash(grep -oE 'webgl[^<>\"]{0,80}' /tmp/dragonfly.html)",
+      "Bash(rm \"C:/Users/josep/Documents/GitHub/giedi/src/components/BackgroundLogos.astro\")",
+      "Bash(npm uninstall *)"
+    ]
+  }
+}

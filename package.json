@@ -1,0 +1,18 @@
+{
+  "name": "giedi",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Giedi — the onchain data forge",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.16.18",
+    "three": "^0.184.0"
+  }
+}

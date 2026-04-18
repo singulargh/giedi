@@ -1,0 +1,54 @@
+---
+import HalftoneScene from "./HalftoneScene.astro";
+
+const stats = [
+  { v: "40+", k: "DASHBOARDS FORGED" },
+  { v: "15+", k: "CHAINS COVERED" },
+  { v: "1B+", k: "ROWS QUERIED / MO" },
+  { v: "24/7", k: "DATA UPTIME" },
+];
+---
+
+<section id="work">
+  <div class="panel">
+    <div class="forge-head">
+      <div>
+        <div class="chapter-tag">
+          FORGE No.I <span class="sep">·</span> <span class="state">LIVE</span>
+        </div>
+        <h2 class="panel-title">Dune Dashboards, hand-forged.</h2>
+        <p class="lead">
+          We design, hammer and maintain end-to-end <strong>Dune Analytics</strong> dashboards for
+          onchain protocols. Metrics that matter, audited queries, clear narrative and data that
+          never goes cold, so your team, your community and your investors all read the same truth.
+        </p>
+      </div>
+      <div class="forge-piece">
+        <HalftoneScene kind="anvil" size="lg" />
+      </div>
+    </div>
+
+    <div class="stats">
+      {
+        stats.map((s) => (
+          <div class="stat">
+            <div class="stat-val">{s.v}</div>
+            <div class="stat-key">{s.k}</div>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="note">Got a protocol that needs to tell its story with onchain data? Let's talk.</p>
+    <a class="btn primary" href="#contact">[ START A FORGE ]</a>
+    <a class="btn" href="#work">[ SEE WORK ]</a>
+
+    <div class="kicker">WHAT'S NEXT</div>
+    <p class="note">
+      We're extending the craft into full data infra: ETLs, APIs, alerts and predictive models over
+      onchain activity.
+    </p>
+    <a class="btn" href="#blog">[ FOLLOW FOR UPDATES ]</a>
+    <a class="btn" href="#contact">[ JOIN THE GUILD ]</a>
+  </div>
+</section>

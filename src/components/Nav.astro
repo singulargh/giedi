@@ -1,0 +1,27 @@
+---
+const links = [
+  { href: "#work", label: "[WORK]" },
+  { href: "#services", label: "[SERVICES]" },
+  { href: "#blog", label: "[BLOG]" },
+  { href: "#contact", label: "[CONTACT]" },
+  { href: "https://x.com", label: "[X]", external: true },
+];
+---
+
+<nav class="nav">
+  <a href="#top" class="brand" aria-label="Giedi">
+    <span class="brand-g">G</span>
+  </a>
+  <div class="nav-links">
+    {
+      links.map((l) => (
+        <a
+          href={l.href}
+          {...(l.external ? { target: "_blank", rel: "noopener" } : {})}
+        >
+          {l.label}
+        </a>
+      ))
+    }
+  </div>
+</nav>
