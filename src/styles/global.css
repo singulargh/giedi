@@ -24,6 +24,16 @@
 
 * { box-sizing: border-box; }
 
+/* Kill the default blue/grey tap flash iOS and Android paint over any
+   tappable element. We still render our own :hover / :focus-visible
+   styles, so the feedback is intentional, not the platform default. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+a, button, [role="button"], input, textarea, select, label {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html, body {
   margin: 0;
   padding: 0;
