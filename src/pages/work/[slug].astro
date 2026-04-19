@@ -1,0 +1,379 @@
+---
+import { getCollection, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import XIcon from "../../components/XIcon.astro";
+import DuneIcon from "../../components/DuneIcon.astro";
+import TelegramIcon from "../../components/TelegramIcon.astro";
+import DiscordIcon from "../../components/DiscordIcon.astro";
+
+// Build one static page per non-draft entry in the work collection.
+// Drafts are excluded so they exist in the repo but never deploy.
+export async function getStaticPaths() {
+  const entries = await getCollection("work", ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry },
+  }));
+}
+
+type Props = { entry: CollectionEntry<"work"> };
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+// Per-entry SEO. Title gets a Giedi suffix, description falls back to the
+// excerpt from the frontmatter. og:type = "article" for indexable work.
+const pageTitle = `${entry.data.title} · Giedi`;
+const pageDesc = entry.data.excerpt;
+---
+
+<Base
+  title={pageTitle}
+  description={pageDesc}
+  ogType="article"
+  keywords={[
+    entry.data.kind,
+    "dune analytics",
+    "onchain data",
+    ...(entry.data.client ? [entry.data.client] : []),
+    ...(entry.data.chain ? [entry.data.chain] : []),
+  ].join(", ")}
+>
+  <Nav />
+
+  <article class="work-entry">
+    <a class="back" href="/work">← BACK TO ARCHIVE</a>
+
+    <div class="meta">
+      <span class="kind">{entry.data.kind.toUpperCase()}</span>
+      {entry.data.client && <span> · {entry.data.client}</span>}
+      {entry.data.chain && <span> · {entry.data.chain}</span>}
+      <span> · {fmt(entry.data.date)}</span>
+    </div>
+
+    <h1 class="entry-title">{entry.data.title}</h1>
+
+    {entry.data.cover && (
+      <div class="cover">
+        <img
+          src={entry.data.cover}
+          alt={entry.data.coverAlt ?? entry.data.title}
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    )}
+
+    <p class="entry-excerpt">{entry.data.excerpt}</p>
+
+    <div class="links">
+      {entry.data.project && (
+        <a
+          class="link-btn"
+          href={entry.data.project}
+          target="_blank"
+          rel="noopener"
+        >
+          <span>{(entry.data.client ?? "PROJECT").toUpperCase()} SITE</span>
+          <span class="arrow">↗</span>
+        </a>
+      )}
+      {entry.data.link && (
+        <a
+          class="link-btn primary"
+          href={entry.data.link}
+          target="_blank"
+          rel="noopener"
+          aria-label="Open on Dune"
+        >
+          <DuneIcon />
+          <span class="arrow">↗</span>
+        </a>
+      )}
+      {entry.data.twitter && (
+        <a
+          class="link-btn"
+          href={entry.data.twitter}
+          target="_blank"
+          rel="noopener"
+          aria-label="X profile"
+        >
+          <XIcon />
+          <span class="arrow">↗</span>
+        </a>
+      )}
+      {entry.data.telegram && (
+        <a
+          class="link-btn"
+          href={entry.data.telegram}
+          target="_blank"
+          rel="noopener"
+          aria-label="Telegram"
+        >
+          <TelegramIcon />
+          <span class="arrow">↗</span>
+        </a>
+      )}
+      {entry.data.discord && (
+        <a
+          class="link-btn"
+          href={entry.data.discord}
+          target="_blank"
+          rel="noopener"
+          aria-label="Discord"
+        >
+          <DiscordIcon />
+          <span class="arrow">↗</span>
+        </a>
+      )}
+    </div>
+
+    <div class="entry-body">
+      <Content />
+    </div>
+
+    <div class="entry-footnav">
+      <a href="/work">← ALL WORK</a>
+      <a href="/contact">START A FORGE →</a>
+    </div>
+  </article>
+
+  <Footer />
+</Base>
+
+<style>
+  .work-entry {
+    padding: 36px 4px 56px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .back {
+    display: inline-block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ink-mute);
+    margin-bottom: 28px;
+  }
+  .back:hover { color: var(--hi); }
+
+  .meta {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .meta .kind { color: var(--ink-dim); }
+
+  .entry-title {
+    font-family: "StarCrush", monospace;
+    font-size: clamp(32px, 6vw, 56px);
+    letter-spacing: 1px;
+    color: var(--ink);
+    margin: 0 0 18px;
+    line-height: 1.05;
+    font-weight: 400;
+  }
+
+  .entry-excerpt {
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0 0 24px;
+  }
+
+  /* Mini banner. Wide strip, responsive, subtle border so it reads as
+     framed artwork rather than a raw asset. */
+  .cover {
+    margin: 6px 0 26px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    background: #000;
+  }
+  .cover img {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2.5 / 1;
+    object-fit: cover;
+  }
+
+  /* External links row. Dune is the primary (inverted on hover). The
+     rest (project site, X, Telegram) are secondary, same shape, quieter
+     colour so the eye lands on Dune first. */
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 36px;
+  }
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border: 1px solid var(--line-strong);
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .link-btn :global(svg) {
+    width: 12px;
+    height: 12px;
+    display: block;
+    color: currentColor;
+    flex-shrink: 0;
+  }
+  .link-btn .arrow {
+    opacity: 0.7;
+  }
+  .link-btn:hover,
+  .link-btn.primary:hover {
+    background: var(--ink);
+    color: #000;
+    border-color: var(--ink);
+  }
+  .link-btn.primary {
+    color: var(--ink);
+  }
+
+  /* Markdown body. Keep it restrained; long-form pieces still read well. */
+  .entry-body {
+    color: var(--ink-dim);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .entry-body :global(h2) {
+    font-family: "StarCrush", monospace;
+    color: var(--ink);
+    font-size: 22px;
+    margin: 36px 0 12px;
+    letter-spacing: 1px;
+    font-weight: 400;
+  }
+  .entry-body :global(h3) {
+    color: var(--ink);
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 28px 0 8px;
+  }
+  .entry-body :global(p) { margin: 0 0 14px; }
+  .entry-body :global(a) {
+    color: var(--ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: var(--line-strong);
+  }
+  .entry-body :global(a:hover) { text-decoration-color: var(--ink); }
+  .entry-body :global(ul), .entry-body :global(ol) {
+    padding-left: 20px;
+    margin: 0 0 14px;
+  }
+  .entry-body :global(li) { margin: 4px 0; }
+  .entry-body :global(code) {
+    background: #101010;
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+    font-size: 12px;
+    border-radius: 2px;
+  }
+  .entry-body :global(pre) {
+    background: #0a0a0a;
+    border: 1px solid var(--line);
+    padding: 14px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .entry-body :global(img) {
+    max-width: 100%;
+    display: block;
+    margin: 20px 0;
+    border: 1px solid var(--line);
+  }
+
+  /* Embedded charts (Dune, etc). Raw <iframe> pasted in the markdown body
+     becomes a responsive, framed visual. Dune's embed URL shape is:
+       https://dune.com/embeds/<QUERY_ID>/<VIZ_ID>
+     Paste any width/height the user writes — we override with 100%/400px
+     and a 16:9 fallback via aspect-ratio. */
+  .entry-body :global(iframe) {
+    width: 100%;
+    min-height: 380px;
+    aspect-ratio: 16 / 9;
+    border: 1px solid var(--line);
+    background: #000;
+    display: block;
+    margin: 22px 0;
+  }
+  .entry-body :global(.dune-embed) {
+    margin: 22px 0;
+  }
+  .entry-body :global(.dune-embed iframe) {
+    margin: 0;
+  }
+  .entry-body :global(.dune-embed figcaption) {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .entry-body :global(blockquote) {
+    border-left: 2px solid var(--line-strong);
+    padding-left: 14px;
+    color: var(--ink-mute);
+    margin: 18px 0;
+    font-style: italic;
+  }
+
+  .entry-footnav {
+    margin-top: 40px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .entry-footnav a { color: var(--ink-mute); }
+  .entry-footnav a:hover { color: var(--hi); }
+
+  @media (max-width: 640px) {
+    /* Keep the two footnav links on the same row even on small screens.
+       Shrink the font a hair and reduce gap so both "ALL WORK" and
+       "START A FORGE" fit without wrapping. */
+    .entry-footnav {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      gap: 10px;
+    }
+
+    /* On mobile the buttons wrap awkwardly into two uneven lines. Force
+       the first button (the project site) to take the full row width, and
+       let the icon-only social / Dune buttons stretch to share the row
+       beneath it equally so they feel as substantial as the site button. */
+    .links .link-btn:first-child {
+      flex-basis: 100%;
+      justify-content: center;
+    }
+    .links .link-btn:not(:first-child) {
+      flex: 1 1 0;
+      min-width: 0;
+      justify-content: center;
+    }
+  }
+</style>

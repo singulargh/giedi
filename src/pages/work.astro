@@ -39,9 +39,7 @@ const fmt = (d: Date) =>
       {entries.map((p) => (
         <a
           class="archive-row"
-          href={p.data.link ?? `#`}
-          target={p.data.link ? "_blank" : undefined}
-          rel={p.data.link ? "noopener" : undefined}
+          href={`/work/${p.slug}`}
         >
           <div class="a-date">{fmt(p.data.date)}</div>
           <div class="a-body">
@@ -52,11 +50,6 @@ const fmt = (d: Date) =>
             </div>
             <h3 class="a-title">{p.data.title}</h3>
             <p class="a-excerpt">{p.data.excerpt}</p>
-            {p.data.tags.length > 0 && (
-              <div class="a-tags">
-                {p.data.tags.map((t) => <span class="a-tag">#{t}</span>)}
-              </div>
-            )}
           </div>
         </a>
       ))}
@@ -120,14 +113,6 @@ const fmt = (d: Date) =>
     margin: 0 0 8px;
     max-width: 680px;
   }
-  .a-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-  .a-tag {
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    color: var(--ink-mute);
-    text-transform: lowercase;
-  }
-
   @media (max-width: 640px) {
     .archive-row { grid-template-columns: 1fr; gap: 6px; }
     .a-date { padding-top: 0; }

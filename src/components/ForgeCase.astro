@@ -79,9 +79,7 @@ const rest = entries.slice(1);
           {lead && (
             <a
               class="work-lead"
-              href={lead.data.link ?? `#`}
-              target={lead.data.link ? "_blank" : undefined}
-              rel={lead.data.link ? "noopener" : undefined}
+              href={`/work/${lead.slug}`}
             >
               <div class="work-thumb">
                 <span>{lead.data.chain ?? "Giedi"}</span>
@@ -100,9 +98,7 @@ const rest = entries.slice(1);
           {rest.map((p) => (
             <a
               class="work-row"
-              href={p.data.link ?? `#`}
-              target={p.data.link ? "_blank" : undefined}
-              rel={p.data.link ? "noopener" : undefined}
+              href={`/work/${p.slug}`}
             >
               <div class="rt">{p.data.title}</div>
               <div class="rd">
