@@ -7,18 +7,17 @@
 
 <canvas id="shader-bg" aria-hidden="true"></canvas>
 
-<script>
-  const canvas = document.getElementById("shader-bg") as HTMLCanvasElement | null;
+<script is:inline>
+  const canvas = document.getElementById("shader-bg");
   if (canvas) {
     const gl =
-      (canvas.getContext("webgl", {
+      canvas.getContext("webgl", {
         alpha: true,
         antialias: false,
         depth: false,
         stencil: false,
         premultipliedAlpha: true,
-      }) as WebGLRenderingContext | null) ||
-      (canvas.getContext("experimental-webgl") as WebGLRenderingContext | null);
+      }) || canvas.getContext("experimental-webgl");
 
     if (gl) {
       const VS = `
@@ -119,17 +118,17 @@
         }
       `;
 
-      function compile(type: number, src: string) {
-        const sh = gl!.createShader(type)!;
-        gl!.shaderSource(sh, src);
-        gl!.compileShader(sh);
-        if (!gl!.getShaderParameter(sh, gl!.COMPILE_STATUS)) {
-          console.warn(gl!.getShaderInfoLog(sh));
+      function compile(type, src) {
+        const sh = gl.createShader(type);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+          console.warn(gl.getShaderInfoLog(sh));
         }
         return sh;
       }
 
-      const prog = gl.createProgram()!;
+      const prog = gl.createProgram();
       gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
       gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
       gl.linkProgram(prog);
@@ -163,7 +162,7 @@
       let tmx = 0.5, tmy = 0.6;
       let mx = tmx, my = tmy;
 
-      function setFromClient(cx: number, cy: number) {
+      function setFromClient(cx, cy) {
         tmx = cx / window.innerWidth;
         tmy = 1.0 - cy / window.innerHeight;
       }
@@ -216,7 +215,7 @@
       //    always covers even when the URL bar hides.
       let lastW = 0;
       let lockedH = 0;
-      function resize(force = false) {
+      function resize(force) {
         const w = window.innerWidth;
         const h = window.innerHeight;
         if (!force && w === lastW) return; // ignore scroll-induced resizes
@@ -224,11 +223,11 @@
         lockedH = Math.max(lockedH, h);
         const dprCap = w < 760 ? 1.25 : 1.75;
         const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
-        canvas!.width = Math.floor(w * dpr);
-        canvas!.height = Math.floor(lockedH * dpr);
-        canvas!.style.width = w + "px";
-        canvas!.style.height = lockedH + "px";
-        gl!.viewport(0, 0, canvas!.width, canvas!.height);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(lockedH * dpr);
+        canvas.style.width = w + "px";
+        canvas.style.height = lockedH + "px";
+        gl.viewport(0, 0, canvas.width, canvas.height);
       }
       resize(true);
       window.addEventListener("resize", () => resize(false));
@@ -239,15 +238,15 @@
 
       let raf = 0;
       const t0 = performance.now();
-      function frame(now: number) {
+      function frame(now) {
         mx += (tmx - mx) * 0.08;
         my += (tmy - my) * 0.08;
-        gl!.uniform2f(uRes, canvas!.width, canvas!.height);
-        gl!.uniform1f(uT, (now - t0) * 0.001);
-        gl!.uniform2f(uM, mx, my);
-        gl!.clearColor(0, 0, 0, 0);
-        gl!.clear(gl!.COLOR_BUFFER_BIT);
-        gl!.drawArrays(gl!.TRIANGLE_STRIP, 0, 4);
+        gl.uniform2f(uRes, canvas.width, canvas.height);
+        gl.uniform1f(uT, (now - t0) * 0.001);
+        gl.uniform2f(uM, mx, my);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
         raf = requestAnimationFrame(frame);
       }
       raf = requestAnimationFrame(frame);
