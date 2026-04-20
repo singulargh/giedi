@@ -19,7 +19,11 @@
       "Bash(node -e 'const fs=require\\('\\\\''fs'\\\\''\\); const b=fs.readFileSync\\('\\\\''.tmp_font_b64.txt'\\\\'','\\\\''utf8'\\\\''\\); const svg=`<svg xmlns='\\\\''http://www.w3.org/2000/svg'\\\\'' viewBox='\\\\''0 0 512 512'\\\\'' width='\\\\''512'\\\\'' height='\\\\''512'\\\\''> *)",
       "Bash(node -e \"try { require.resolve\\('sharp'\\); console.log\\('yes'\\); } catch { console.log\\('no'\\); }\")",
       "Bash(node -e ' *)",
-      "Bash(node -e \"try { require.resolve\\('@resvg/resvg-js'\\); console.log\\('yes'\\); } catch { console.log\\('no'\\); }\")"
+      "Bash(node -e \"try { require.resolve\\('@resvg/resvg-js'\\); console.log\\('yes'\\); } catch { console.log\\('no'\\); }\")",
+      "WebSearch",
+      "mcp__helius__searchAssets",
+      "mcp__helius__getAsset",
+      "mcp__a78b53f7-0c89-4f57-bcda-f0b49181ec3b__searchTables"
     ]
   }
 }
