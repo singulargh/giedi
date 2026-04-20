@@ -11,8 +11,9 @@ link:     "https://dune.com/giedi/collector-crypt-cards-solana"
 project:  "https://collectorcrypt.com"
 twitter:  "https://x.com/Collector_Crypt"
 
-cover:    "/work-covers/collector-crypt.svg"
+cover:    "/work-covers/collector-crypt.webp"
 coverAlt: "Collector Crypt · Giedi"
+ogImage:  "/work-covers/collector-crypt-og.webp"
 
 draft: true
 ---
