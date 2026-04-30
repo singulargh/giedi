@@ -59,19 +59,14 @@ a:hover { color: var(--hi); }
   padding: 28px 32px 80px;
 }
 
-/* ——— Inline X logo ———
-   Use <span class="xi"><XIcon /></span> anywhere "X" (the platform) appears
-   in prose. Scales with the surrounding font-size via em units. */
+/* ——— Inline X brand mark ———
+   Renders the letter "X" in StarCrush so it reads as a brand mark while
+   staying visually consistent with the forge aesthetic. Use anywhere the
+   X platform is referenced in prose: <span class="xi">X</span> */
 .xi {
-  display: inline-flex;
-  align-items: center;
-  vertical-align: -0.12em;
-}
-.xi svg {
-  width: 0.82em;
-  height: 0.82em;
-  display: block;
-  fill: currentColor;
+  font-family: "StarCrush", monospace;
+  display: inline;
+  line-height: 1;
 }
 
 /* Separators. */
