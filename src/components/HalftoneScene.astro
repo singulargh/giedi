@@ -2,7 +2,7 @@
 // Reusable 3D scene rendered with a halftone post-process.
 // Procedural geometry — no model files.
 export interface Props {
-  kind: "anvil" | "hammer" | "rock" | "crystal" | "gear" | "solana";
+  kind: "anvil" | "hammer" | "rock" | "crystal" | "gear" | "solana" | "xlogo";
   size?: "sm" | "md" | "lg";
   label?: string;
   class?: string;
@@ -383,6 +383,41 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
     return g;
   }
 
+  function buildXLogo(): THREE.Object3D {
+    const m = baseMat();
+
+    // Outer outline of the X/Twitter logo, traced from the official SVG
+    // (viewBox 0 0 1200 1227), normalized to Three.js coords:
+    //   x_3js = (x_svg - 600) / 600 * 0.95
+    //   y_3js = -(y_svg - 613.5) / 600 * 0.95   (Y flipped: SVG↓ → Three.js↑)
+    const shape = new THREE.Shape();
+    shape.moveTo( 0.181,  0.149);   // center-right crossing
+    shape.lineTo( 0.888,  0.972);   // top-right corner outer
+    shape.lineTo( 0.721,  0.972);   // top-right corner inner
+    shape.lineTo( 0.106,  0.257);   // upper crossing, left side
+    shape.lineTo(-0.385,  0.972);   // top-left arm outer
+    shape.lineTo(-0.950,  0.972);   // top-left corner
+    shape.lineTo(-0.208, -0.108);   // center-left crossing
+    shape.lineTo(-0.950, -0.970);   // bottom-left corner
+    shape.lineTo(-0.783, -0.970);   // bottom-left inner
+    shape.lineTo(-0.134, -0.217);   // lower crossing, right side
+    shape.lineTo( 0.384, -0.970);   // bottom-right arm outer
+    shape.lineTo( 0.950, -0.970);   // bottom-right corner
+    shape.closePath();
+
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.34,
+      bevelEnabled: true,
+      bevelThickness: 0.045,
+      bevelSize: 0.04,
+      bevelSegments: 3,
+    });
+    // Center depth so the logo sits at z=0
+    geo.translate(0, 0, -0.17);
+
+    return new THREE.Mesh(geo, m);
+  }
+
   function build(kind: string): THREE.Object3D {
     switch (kind) {
       case "anvil":   return buildAnvil();
@@ -391,6 +426,7 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
       case "crystal": return buildCrystal();
       case "gear":    return buildGear();
       case "solana":  return buildSolana();
+      case "xlogo":   return buildXLogo();
       default:        return buildRock();
     }
   }
@@ -443,7 +479,8 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
 
     const dotSize =
       kind === "anvil" || kind === "hammer" ? 4.0 :
-      kind === "gear" ? 4.5 :
+      kind === "gear"   ? 4.5 :
+      kind === "xlogo"  ? 3.8 :
       5.5;
     halftone.uniforms.uDotSize.value = dotSize;
 
@@ -511,8 +548,15 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
     let raf = 0;
     function frame(t: number) {
       if (visible) {
-        obj.rotation.y = t * 0.00035 + mx * 0.25;
-        obj.rotation.x = Math.sin(t * 0.00028) * 0.12 + my * -0.12;
+        if (kind === "xlogo") {
+          // Steady continuous Y spin + gentle tilt on both axes
+          obj.rotation.y = t * 0.00075;
+          obj.rotation.x = Math.sin(t * 0.00042) * 0.22 + my * -0.18;
+          obj.rotation.z = Math.sin(t * 0.00031) * 0.06;
+        } else {
+          obj.rotation.y = t * 0.00035 + mx * 0.25;
+          obj.rotation.x = Math.sin(t * 0.00028) * 0.12 + my * -0.12;
+        }
         composer.render();
       }
       raf = requestAnimationFrame(frame);

@@ -1,5 +1,5 @@
 ---
-import XDotMatrix from "./XDotMatrix.astro";
+import HalftoneScene from "./HalftoneScene.astro";
 ---
 
 <header class="hero">
@@ -16,30 +16,11 @@ import XDotMatrix from "./XDotMatrix.astro";
       </div>
     </div>
     <div class="hero-showpiece">
-      <XDotMatrix size={360} animate={true} class="hero-xdm" />
+      <HalftoneScene kind="xlogo" size="lg" />
     </div>
   </div>
 </header>
 
 <style>
   .hero-cta { margin-top: 28px; }
-
-  /* Keep the XDotMatrix from stretching on mobile */
-  .hero-showpiece {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-  }
-  .hero-showpiece :global(.hero-xdm) {
-    width: 100%;
-    max-width: 360px;
-  }
-
-  @media (max-width: 860px) {
-    .hero-showpiece {
-      justify-content: center;
-      max-width: 280px;
-      margin: 0 auto;
-    }
-  }
 </style>
