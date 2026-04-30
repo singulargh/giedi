@@ -6,7 +6,7 @@ import HalftoneScene from "./HalftoneScene.astro";
 const stats = [
   { v: "50+",  k: "BOTS DEPLOYED" },
   { v: "20+",  k: "CHAINS SUPPORTED" },
-  { v: "∞",    k: "TWEETS AUTOMATED" },
+  { v: "∞",    k: "TWEETS AUTOMATED", mono: true },
   { v: "24/7", k: "ALWAYS ONLINE" },
 ];
 
@@ -59,7 +59,7 @@ const rest = entries.slice(1);
       {
         stats.map((s) => (
           <div class="stat">
-            <div class="stat-val">{s.v}</div>
+            <div class={s.mono ? "stat-val stat-val-mono" : "stat-val"}>{s.v}</div>
             <div class="stat-key">{s.k}</div>
           </div>
         ))

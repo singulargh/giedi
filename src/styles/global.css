@@ -262,6 +262,12 @@ h3.sub.forge {
   line-height: 1;
   color: var(--ink);
 }
+/* For glyphs missing from StarCrush (e.g. ∞) fall back explicitly to
+   JetBrains Mono bold so the visual weight matches the StarCrush numbers. */
+.stat-val-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 700;
+}
 .stat-key {
   font-size: 10px;
   letter-spacing: 2px;
@@ -496,7 +502,7 @@ h3.sub.forge {
   .hero-title { font-size: 84px; }
   .hero-hammer { width: 140px; margin: 0 auto; }
   .hero-showpiece { max-width: 640px; justify-self: center; justify-content: center; }
-  .hero-showpiece .halftone-stage { max-width: 300px; }
+  .hero-showpiece .halftone-stage { max-width: 260px; }
   .forge-head { grid-template-columns: 1fr; }
   .forge-piece {
     width: 100%;
@@ -514,4 +520,9 @@ h3.sub.forge {
   .vision-grid { grid-template-columns: 1fr; }
   .blog-lead, .blog-row { grid-template-columns: 1fr; }
   .vision-diagram { font-size: 8px; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 68px; }
+  .hero-showpiece .halftone-stage { max-width: 180px; }
 }
