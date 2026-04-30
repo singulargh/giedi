@@ -386,10 +386,16 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
   function buildXLogo(): THREE.Object3D {
     const m = baseMat();
 
-    // Outer outline of the X/Twitter logo, traced from the official SVG
-    // (viewBox 0 0 1200 1227), normalized to Three.js coords:
-    //   x_3js = (x_svg - 600) / 600 * 0.95
-    //   y_3js = -(y_svg - 613.5) / 600 * 0.95   (Y flipped: SVG↓ → Three.js↑)
+    // The official X/Twitter logo SVG (viewBox 0 0 1200 1227) has two subpaths
+    // in a single <path d="…Z M…Z"> — the second is the inner diagonal cutout
+    // that, via the even-odd fill rule, creates the visible gap between the
+    // two crossing strokes.
+    //
+    // All coordinates normalised to Three.js space:
+    //   x = (x_svg - 600) / 600 * 0.95
+    //   y = -(y_svg - 613.5) / 600 * 0.95   (SVG Y↓  →  Three.js Y↑)
+
+    // ── 1. Outer shape ──────────────────────────────────────────────────────
     const shape = new THREE.Shape();
     shape.moveTo( 0.181,  0.149);   // center-right crossing
     shape.lineTo( 0.888,  0.972);   // top-right corner outer
@@ -405,6 +411,22 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
     shape.lineTo( 0.950, -0.970);   // bottom-right corner
     shape.closePath();
 
+    // ── 2. Inner diagonal cutout (the void between the two strokes) ─────────
+    // Traced from the second subpath of the official SVG path `d` attribute.
+    // Adding it as a hole punches it out of the extrusion, just like even-odd
+    // fill does in the flat 2-D icon.
+    const hole = new THREE.Path();
+    hole.moveTo(-0.049, -0.118);
+    hole.lineTo(-0.124, -0.010);
+    hole.lineTo(-0.723,  0.846);
+    hole.lineTo(-0.466,  0.846);
+    hole.lineTo( 0.018,  0.155);
+    hole.lineTo( 0.093,  0.047);
+    hole.lineTo( 0.721, -0.850);
+    hole.lineTo( 0.464, -0.850);
+    hole.closePath();
+    shape.holes.push(hole);
+
     const geo = new THREE.ExtrudeGeometry(shape, {
       depth: 0.34,
       bevelEnabled: true,
@@ -412,7 +434,6 @@ const { kind, size = "md", label, class: className = "" } = Astro.props;
       bevelSize: 0.04,
       bevelSegments: 3,
     });
-    // Center depth so the logo sits at z=0
     geo.translate(0, 0, -0.17);
 
     return new THREE.Mesh(geo, m);
