@@ -1,0 +1,538 @@
+---
+// Multi-step onboarding form (Typeform-style).
+// Collects: project name, chains, bot capabilities, vision, contact.
+// Submits via FormSubmit.co until the Supabase backend is wired up.
+---
+
+<section class="ff-section" id="forge-form-section">
+  <div class="chapter-tag">
+    FORGE ORDER <span class="sep">·</span> <span class="state">OPEN</span>
+  </div>
+  <h2 class="panel-title">Forge a bot.</h2>
+  <p class="lead">
+    Answer a few questions and we'll build your X bot from the chain up.
+  </p>
+
+  <div class="ff-container">
+    <div class="ff-progress-wrap">
+      <div class="ff-bar" id="ff-bar"></div>
+    </div>
+    <div class="ff-counter">
+      <span id="ff-num">01</span><span class="ff-total"> / 05</span>
+    </div>
+
+    <form id="ff-form" action="https://formsubmit.co/hi@giedi.xyz" method="POST" novalidate>
+      <input type="hidden" name="_subject" value="New Forge Order — Giedi" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="hidden" name="_honey" value="" />
+      <!-- populated by JS before submit -->
+      <input type="hidden" name="project"      id="hf-project" />
+      <input type="hidden" name="chains"       id="hf-chains" />
+      <input type="hidden" name="capabilities" id="hf-caps" />
+      <input type="hidden" name="vision"       id="hf-vision" />
+      <input type="hidden" name="email"        id="hf-email" />
+      <input type="hidden" name="x_handle"     id="hf-handle" />
+
+      <!-- ── Step 1: Project name ── -->
+      <div class="ff-step active" data-step="1">
+        <label class="ff-q" for="inp-project">
+          <span class="ff-qn">01 —</span>
+          What's your project called?
+        </label>
+        <input
+          type="text"
+          id="inp-project"
+          class="ff-input"
+          placeholder="ProtocolX, MyDAO, CoolToken…"
+          autocomplete="off"
+          maxlength="80"
+        />
+        <div class="ff-err" id="err-project">Please enter a project name.</div>
+        <div class="ff-actions">
+          <button type="button" class="btn primary ff-next" data-next="2">
+            CONTINUE <span class="ff-key">↵</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Chains ── -->
+      <div class="ff-step" data-step="2">
+        <div class="ff-q">
+          <span class="ff-qn">02 —</span>
+          Which chain(s) are you building on?
+        </div>
+        <div class="ff-chips" id="ff-chains-wrap">
+          <button type="button" class="ff-chip" data-val="Ethereum">Ethereum</button>
+          <button type="button" class="ff-chip" data-val="Solana">Solana</button>
+          <button type="button" class="ff-chip" data-val="Base">Base</button>
+          <button type="button" class="ff-chip" data-val="Arbitrum">Arbitrum</button>
+          <button type="button" class="ff-chip" data-val="Optimism">Optimism</button>
+          <button type="button" class="ff-chip" data-val="Polygon">Polygon</button>
+          <button type="button" class="ff-chip" data-val="Avalanche">Avalanche</button>
+          <button type="button" class="ff-chip" data-val="TON">TON</button>
+          <button type="button" class="ff-chip" data-val="Bitcoin">Bitcoin</button>
+          <button type="button" class="ff-chip" data-val="Other">Other</button>
+        </div>
+        <div class="ff-err" id="err-chains">Select at least one chain.</div>
+        <div class="ff-actions">
+          <button type="button" class="btn ff-back" data-back="1">← BACK</button>
+          <button type="button" class="btn primary ff-next" data-next="3">
+            CONTINUE <span class="ff-key">↵</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 3: Capabilities ── -->
+      <div class="ff-step" data-step="3">
+        <div class="ff-q">
+          <span class="ff-qn">03 —</span>
+          What should your bot do?
+        </div>
+        <div class="ff-checks" id="ff-caps-wrap">
+          <label class="ff-check">
+            <input type="checkbox" value="Announce onchain events" />
+            <span>Announce onchain events</span>
+          </label>
+          <label class="ff-check">
+            <input type="checkbox" value="Track transactions & wallets" />
+            <span>Track transactions &amp; wallets</span>
+          </label>
+          <label class="ff-check">
+            <input type="checkbox" value="Community engagement & replies" />
+            <span>Community engagement &amp; replies</span>
+          </label>
+          <label class="ff-check">
+            <input type="checkbox" value="Token price & volume alerts" />
+            <span>Token price &amp; volume alerts</span>
+          </label>
+          <label class="ff-check">
+            <input type="checkbox" value="NFT minting & trading" />
+            <span>NFT minting &amp; trading</span>
+          </label>
+          <label class="ff-check">
+            <input type="checkbox" value="Governance & DAO votes" />
+            <span>Governance &amp; DAO votes</span>
+          </label>
+          <label class="ff-check">
+            <input type="checkbox" value="Custom triggers" />
+            <span>Custom triggers</span>
+          </label>
+        </div>
+        <div class="ff-actions">
+          <button type="button" class="btn ff-back" data-back="2">← BACK</button>
+          <button type="button" class="btn primary ff-next" data-next="4">
+            CONTINUE <span class="ff-key">↵</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 4: Vision ── -->
+      <div class="ff-step" data-step="4">
+        <label class="ff-q" for="inp-vision">
+          <span class="ff-qn">04 —</span>
+          Tell us about your vision.
+        </label>
+        <textarea
+          id="inp-vision"
+          class="ff-textarea"
+          placeholder="Describe what you want the bot to do, how often it should post, specific triggers, tone of voice…"
+          rows="5"
+          maxlength="1200"
+        ></textarea>
+        <div class="ff-char-row">
+          <span id="ff-char">0</span> / 1200
+        </div>
+        <div class="ff-actions">
+          <button type="button" class="btn ff-back" data-back="3">← BACK</button>
+          <button type="button" class="btn primary ff-next" data-next="5">
+            CONTINUE <span class="ff-key">↵</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 5: Contact ── -->
+      <div class="ff-step" data-step="5">
+        <div class="ff-q">
+          <span class="ff-qn">05 —</span>
+          Where can we reach you?
+        </div>
+        <input
+          type="email"
+          id="inp-email"
+          class="ff-input"
+          placeholder="your@email.com"
+          autocomplete="email"
+        />
+        <input
+          type="text"
+          id="inp-handle"
+          class="ff-input ff-input-sm"
+          placeholder="@yourXhandle (optional)"
+          autocomplete="off"
+          maxlength="50"
+        />
+        <div class="ff-err" id="err-email">Please enter a valid email address.</div>
+        <div class="ff-actions">
+          <button type="button" class="btn ff-back" data-back="4">← BACK</button>
+          <button type="button" class="btn primary" id="ff-submit">
+            FORGE IT →
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Step 6: Success ── -->
+      <div class="ff-step ff-done" data-step="6">
+        <div class="ff-check-mark">✓</div>
+        <div class="ff-q" style="margin-bottom:12px">Your order is in the forge.</div>
+        <p class="lead">We read every message. Expect an answer in less than 48 hours.</p>
+        <a href="/" class="btn primary" style="margin-top:28px;display:inline-flex">← BACK TO GIEDI</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .ff-section { padding: 36px 4px 64px; }
+
+  .ff-container {
+    margin-top: 36px;
+    max-width: 660px;
+  }
+
+  /* Progress bar */
+  .ff-progress-wrap {
+    height: 1px;
+    background: var(--line);
+    margin-bottom: 10px;
+  }
+  .ff-bar {
+    height: 100%;
+    background: var(--ink);
+    width: 20%;
+    transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .ff-counter {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--ink-mute);
+    margin-bottom: 44px;
+  }
+  .ff-total { color: var(--line-strong); }
+
+  /* Steps */
+  .ff-step { display: none; }
+  .ff-step.active {
+    display: block;
+    animation: ff-slide-in 0.28s ease both;
+  }
+  @keyframes ff-slide-in {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Question */
+  .ff-q {
+    font-family: "StarCrush", monospace;
+    font-size: 30px;
+    letter-spacing: 1px;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: 28px;
+    display: block;
+  }
+  .ff-qn {
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--ink-mute);
+    margin-bottom: 10px;
+  }
+
+  /* Inputs */
+  .ff-input {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line-strong);
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 20px;
+    padding: 8px 0 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.5px;
+    margin-bottom: 0;
+  }
+  .ff-input::placeholder { color: var(--ink-mute); }
+  .ff-input:focus { border-bottom-color: var(--ink); }
+  .ff-input-sm { font-size: 15px; margin-top: 18px; }
+
+  /* Textarea */
+  .ff-textarea {
+    display: block;
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 13px;
+    padding: 14px;
+    outline: none;
+    resize: vertical;
+    min-height: 130px;
+    line-height: 1.65;
+    transition: border-color 0.2s;
+  }
+  .ff-textarea:focus { border-color: var(--ink); }
+  .ff-textarea::placeholder { color: var(--ink-mute); }
+  .ff-char-row {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--ink-mute);
+    text-align: right;
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
+
+  /* Chips */
+  .ff-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .ff-chip {
+    padding: 8px 18px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--ink-dim);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .ff-chip:hover { border-color: var(--ink-dim); color: var(--ink); }
+  .ff-chip.sel {
+    background: var(--ink);
+    color: #000;
+    border-color: var(--ink);
+  }
+
+  /* Checkboxes */
+  .ff-checks {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 4px;
+  }
+  .ff-check {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px dashed var(--line);
+    cursor: pointer;
+    color: var(--ink-dim);
+    font-size: 13px;
+    transition: color 0.15s;
+  }
+  .ff-check:last-child { border-bottom: none; }
+  .ff-check:hover { color: var(--ink); }
+  .ff-check input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    position: relative;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .ff-check input[type="checkbox"]:checked {
+    background: var(--ink);
+    border-color: var(--ink);
+  }
+  .ff-check input[type="checkbox"]:checked::after {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #000;
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+  }
+
+  /* Error messages */
+  .ff-err {
+    display: none;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--hi);
+    margin-top: 8px;
+  }
+  .ff-err.show { display: block; }
+
+  /* Actions */
+  .ff-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 32px;
+  }
+  .ff-back {
+    font-size: 10px !important;
+    padding: 9px 14px !important;
+    color: var(--ink-mute) !important;
+  }
+  .ff-key {
+    font-size: 12px;
+    opacity: 0.55;
+    margin-left: 2px;
+  }
+
+  /* Done */
+  .ff-check-mark {
+    font-size: 52px;
+    color: var(--ink);
+    margin-bottom: 20px;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  @media (max-width: 640px) {
+    .ff-q { font-size: 22px; }
+    .ff-input { font-size: 16px; }
+  }
+</style>
+
+<script>
+  const form = document.getElementById("ff-form") as HTMLFormElement;
+  const bar  = document.getElementById("ff-bar") as HTMLElement;
+  const num  = document.getElementById("ff-num") as HTMLElement;
+  const TOTAL = 5;
+
+  function step(n: number): HTMLElement | null {
+    return document.querySelector(`.ff-step[data-step="${n}"]`);
+  }
+
+  function goTo(n: number) {
+    document.querySelectorAll<HTMLElement>(".ff-step").forEach(s => s.classList.remove("active"));
+    const el = step(n);
+    if (!el) return;
+    el.classList.add("active");
+    const inp = el.querySelector<HTMLElement>("input:not([type=hidden]), textarea");
+    if (inp) setTimeout(() => inp.focus(), 40);
+    const display = Math.min(n, TOTAL);
+    num.textContent = String(display).padStart(2, "0");
+    bar.style.width = `${(display / TOTAL) * 100}%`;
+  }
+
+  // Next buttons
+  document.querySelectorAll<HTMLButtonElement>(".ff-next").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const current = parseInt(btn.closest<HTMLElement>(".ff-step")!.dataset.step || "1");
+      const next = parseInt(btn.dataset.next || "1");
+
+      // Validate step 1
+      if (current === 1) {
+        const val = (document.getElementById("inp-project") as HTMLInputElement).value.trim();
+        const err = document.getElementById("err-project")!;
+        if (!val) { err.classList.add("show"); return; }
+        err.classList.remove("show");
+      }
+      // Validate step 2
+      if (current === 2) {
+        const sel = document.querySelectorAll(".ff-chip.sel").length;
+        const err = document.getElementById("err-chains")!;
+        if (!sel) { err.classList.add("show"); return; }
+        err.classList.remove("show");
+      }
+
+      goTo(next);
+    });
+  });
+
+  // Back buttons
+  document.querySelectorAll<HTMLButtonElement>(".ff-back").forEach(btn => {
+    btn.addEventListener("click", () => {
+      goTo(parseInt(btn.dataset.back || "1"));
+    });
+  });
+
+  // Chip multi-select
+  document.querySelectorAll<HTMLButtonElement>(".ff-chip").forEach(chip => {
+    chip.addEventListener("click", () => chip.classList.toggle("sel"));
+  });
+
+  // Textarea char count
+  const visionEl = document.getElementById("inp-vision") as HTMLTextAreaElement;
+  const charEl   = document.getElementById("ff-char") as HTMLElement;
+  visionEl?.addEventListener("input", () => {
+    charEl.textContent = String(visionEl.value.length);
+  });
+
+  // Enter key advances current step (not textarea)
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    if ((e.target as HTMLElement)?.tagName === "TEXTAREA") return;
+    const active = document.querySelector<HTMLElement>(".ff-step.active");
+    if (!active) return;
+    const next = active.querySelector<HTMLButtonElement>(".ff-next");
+    if (next) { e.preventDefault(); next.click(); }
+  });
+
+  // Submit
+  document.getElementById("ff-submit")?.addEventListener("click", async () => {
+    const email = (document.getElementById("inp-email") as HTMLInputElement).value.trim();
+    const errEmail = document.getElementById("err-email")!;
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errEmail.classList.add("show");
+      return;
+    }
+    errEmail.classList.remove("show");
+
+    // Populate hidden fields
+    (document.getElementById("hf-project") as HTMLInputElement).value =
+      (document.getElementById("inp-project") as HTMLInputElement).value.trim();
+    (document.getElementById("hf-chains") as HTMLInputElement).value =
+      Array.from(document.querySelectorAll<HTMLElement>(".ff-chip.sel"))
+        .map(c => c.dataset.val || "").filter(Boolean).join(", ");
+    (document.getElementById("hf-caps") as HTMLInputElement).value =
+      Array.from(document.querySelectorAll<HTMLInputElement>(".ff-checks input:checked"))
+        .map(c => c.value).join(", ");
+    (document.getElementById("hf-vision") as HTMLInputElement).value =
+      (document.getElementById("inp-vision") as HTMLTextAreaElement).value.trim();
+    (document.getElementById("hf-email") as HTMLInputElement).value = email;
+    (document.getElementById("hf-handle") as HTMLInputElement).value =
+      (document.getElementById("inp-handle") as HTMLInputElement).value.trim();
+
+    const btn = document.getElementById("ff-submit") as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = "FORGING…";
+
+    try {
+      const res = await fetch(form.action, {
+        method: "POST",
+        body: new FormData(form),
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok || res.status < 500) {
+        goTo(6);
+        bar.style.width = "100%";
+        num.textContent = "05";
+      } else throw new Error();
+    } catch {
+      btn.disabled = false;
+      btn.textContent = "FORGE IT →";
+      alert("Something went wrong. Email us directly at hi@giedi.xyz");
+    }
+  });
+</script>

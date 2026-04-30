@@ -3,19 +3,16 @@ import { getCollection } from "astro:content";
 import HalftoneScene from "./HalftoneScene.astro";
 
 const stats = [
-  { v: "40+", k: "DASHBOARDS FORGED" },
-  { v: "15+", k: "CHAINS COVERED" },
-  { v: "1B+", k: "ROWS QUERIED / MO" },
-  { v: "24/7", k: "DATA UPTIME" },
+  { v: "50+",  k: "BOTS DEPLOYED" },
+  { v: "20+",  k: "CHAINS SUPPORTED" },
+  { v: "∞",    k: "TWEETS AUTOMATED" },
+  { v: "24/7", k: "ALWAYS ONLINE" },
 ];
 
-// Real work entries — each dashboard / piece of research / infra job lives as a
-// markdown file in src/content/work/. Drafts are hidden; order is newest first.
 const allEntries = (
   await getCollection("work", ({ data }) => !data.draft)
 ).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-// Home only shows the 5 most recent. Full archive lives at /work.
 const entries = allEntries.slice(0, 5);
 const hasMore = allEntries.length > entries.length;
 const lead = entries[0];
@@ -35,20 +32,20 @@ const rest = entries.slice(1);
         </div>
         <h2 class="panel-title">The craft, hand-forged.</h2>
         <p class="lead">
-          <strong>Giedi</strong> is an onchain data forge. We take raw block data, transactions,
-          logs, traces and bridges, and hammer it into <strong>Dune Analytics</strong> dashboards,
-          reports and models for any onchain project: protocols, DAOs, chains, wallets, NFT
-          collections, tooling and token launches. Metrics that matter, audited queries, clear
-          narrative and data that never goes cold, so your team, your community and your
-          investors all read the same truth.
+          <strong>Giedi</strong> is an onchain bot forge. We build X (Twitter) bots
+          that listen to the chain, react to smart contract events, and speak to your
+          community in real time. Token launches, protocol activity, NFT mints,
+          governance votes — every onchain signal becomes a voice on X. Fully
+          automated, fully onchain-native, always on.
         </p>
         <div class="kicker">SERVICES</div>
         <ul class="services">
-          <li>Dune dashboards &amp; spellbook contributions</li>
-          <li>Onchain research &amp; written reports</li>
-          <li>Tokenomics &amp; incentive analysis</li>
-          <li>Custom data pipelines, ETL, APIs, webhooks</li>
-          <li>Growth &amp; BD analytics for onchain projects</li>
+          <li>Custom X bot development for protocols &amp; DAOs</li>
+          <li>Smart contract event listeners &amp; onchain triggers</li>
+          <li>Token launch &amp; NFT minting announcement bots</li>
+          <li>Community engagement &amp; automated replies</li>
+          <li>Governance, treasury &amp; DAO activity bots</li>
+          <li>Multi-chain support, webhooks &amp; custom pipelines</li>
         </ul>
       </div>
 
@@ -77,10 +74,7 @@ const rest = entries.slice(1);
           </div>
 
           {lead && (
-            <a
-              class="work-lead"
-              href={`/work/${lead.slug}`}
-            >
+            <a class="work-lead" href={`/work/${lead.slug}`}>
               <div class="work-thumb">
                 <span>{lead.data.chain ?? "Giedi"}</span>
               </div>
@@ -96,10 +90,7 @@ const rest = entries.slice(1);
           )}
 
           {rest.map((p) => (
-            <a
-              class="work-row"
-              href={`/work/${p.slug}`}
-            >
+            <a class="work-row" href={`/work/${p.slug}`}>
               <div class="rt">{p.data.title}</div>
               <div class="rd">
                 <div class="work-meta">
@@ -124,8 +115,6 @@ const rest = entries.slice(1);
 </section>
 
 <style>
-  /* Horizontal forge layout: hammer — copy — anvil.
-     Icons flank the text on desktop. On mobile they stack top/bottom. */
   .forge-stack {
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -144,7 +133,6 @@ const rest = entries.slice(1);
   }
   .forge-copy .lead { margin-left: auto; margin-right: auto; }
   .forge-copy .kicker { text-align: center; }
-  .forge-copy .note { text-align: left; display: inline-block; }
   .services {
     list-style: none;
     padding: 0;
@@ -153,9 +141,7 @@ const rest = entries.slice(1);
     font-size: 12px;
     text-align: center;
   }
-  .services li {
-    padding: 3px 0;
-  }
+  .services li { padding: 3px 0; }
 
   @media (max-width: 860px) {
     .forge-stack {
@@ -196,7 +182,7 @@ const rest = entries.slice(1);
     text-align: center;
     padding: 0 8px;
   }
-  .work-title { font-size: 15px; margin: 4px 0 8px; color: var(--ink); font-weight: 700; }
+  .work-title  { font-size: 15px; margin: 4px 0 8px; color: var(--ink); font-weight: 700; }
   .work-excerpt { color: var(--ink-dim); font-size: 12px; margin: 0; }
   .work-meta {
     font-size: 10px;
@@ -225,8 +211,6 @@ const rest = entries.slice(1);
   a.pager { text-decoration: none; }
 
   @media (max-width: 860px) {
-    /* Stack thumb over text on mobile, but keep the thumb compact and
-       give it breathing room so entries don't feel "pegadas arriba". */
     .work-lead, .work-row {
       grid-template-columns: 1fr;
       gap: 14px;
@@ -240,6 +224,6 @@ const rest = entries.slice(1);
       font-size: 28px;
     }
     .work-row .rt { font-size: 22px; line-height: 1.1; }
-    .work-title { font-size: 14px; }
+    .work-title   { font-size: 14px; }
   }
 </style>

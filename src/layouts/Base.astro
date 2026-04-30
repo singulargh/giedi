@@ -16,11 +16,11 @@ export interface Props {
 const SITE = "https://giedi.xyz";
 
 const {
-  title = "Giedi, Onchain Data Forge · Dune Analytics dashboards, research and data infrastructure",
-  description = "Giedi is a blockchain data agency. We design, build and maintain Dune Analytics dashboards, onchain research and custom data infrastructure for protocols, DAOs, chains and onchain projects.",
+  title = "Giedi · The Onchain Bot Forge — X Bots for Protocols, DAOs & Web3",
+  description = "Giedi forges X (Twitter) bots that read onchain events and speak to your community in real time. Custom bots for protocols, DAOs, token launches, NFT projects and any onchain product.",
   path = Astro.url.pathname,
   ogType = "website",
-  keywords = "onchain data, dune analytics, blockchain data agency, crypto dashboards, onchain analytics, dune dashboard agency, blockchain analytics, dune experts, onchain research, tokenomics analysis, crypto data pipelines, web3 analytics",
+  keywords = "x bot agency, twitter bot for crypto, onchain bot, x bot for protocol, dao twitter bot, web3 twitter automation, onchain automation, crypto x bot, nft bot x, token launch bot",
 } = Astro.props;
 
 // Canonical URL — always absolute, no trailing slash (matches our vercel cleanUrls setting).
@@ -35,16 +35,13 @@ const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: "Giedi",
-  alternateName: "Giedi Labs",
+  alternateName: "Giedi Bot Forge",
   description:
-    "Onchain data agency, Dune Analytics dashboards, blockchain research and data infrastructure.",
+    "X bot agency for onchain protocols. We build Twitter/X bots that listen to smart contract events and speak to your community in real time.",
   url: SITE,
   logo: `${SITE}/favicon-96x96.png`,
   email: "hi@giedi.xyz",
-  sameAs: [
-    "https://x.com/giedixyz",
-    "https://dune.com/giedixyz",
-  ],
+  sameAs: ["https://x.com/giedixyz"],
 };
 ---
 

@@ -1,0 +1,73 @@
+---
+// X logo rendered as a halftone-style dot matrix. Pure SVG — no Three.js.
+// Dots that form the X shape pulse with a staggered animation.
+export interface Props {
+  size?: number;
+  class?: string;
+  animate?: boolean;
+}
+const { size = 320, class: className = "", animate = true } = Astro.props;
+
+// 12×12 grid — two thick diagonal strokes forming the X mark
+const grid = [
+  [1,1,0,0,0,0,0,0,0,0,1,1],
+  [0,1,1,0,0,0,0,0,0,1,1,0],
+  [0,0,1,1,0,0,0,0,1,1,0,0],
+  [0,0,0,1,1,0,0,1,1,0,0,0],
+  [0,0,0,0,1,1,1,1,0,0,0,0],
+  [0,0,0,0,0,1,1,0,0,0,0,0],
+  [0,0,0,0,0,1,1,0,0,0,0,0],
+  [0,0,0,0,1,1,1,1,0,0,0,0],
+  [0,0,0,1,1,0,0,1,1,0,0,0],
+  [0,0,1,1,0,0,0,0,1,1,0,0],
+  [0,1,1,0,0,0,0,0,0,1,1,0],
+  [1,1,0,0,0,0,0,0,0,0,1,1],
+];
+
+// viewBox is 120×120 (10px per cell)
+const STEP = 10;
+const R = STEP * 0.36;
+
+const dots = grid.flatMap((row, ri) =>
+  row.map((cell, ci) => ({
+    cx: ci * STEP + STEP / 2,
+    cy: ri * STEP + STEP / 2,
+    on: !!cell,
+    // Diagonal scan delay: top-left fires first
+    delay: ((ri * 0.05 + ci * 0.05) % 1.2).toFixed(2),
+  }))
+);
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 120 120"
+  width={size}
+  height={size}
+  aria-hidden="true"
+  class={`xdm${animate ? " xdm-anim" : ""}${className ? " " + className : ""}`}
+>
+  {dots.map(d => (
+    <circle
+      cx={d.cx}
+      cy={d.cy}
+      r={R}
+      class={d.on ? "on" : "off"}
+      style={animate && d.on ? `animation-delay:${d.delay}s` : undefined}
+    />
+  ))}
+</svg>
+
+<style>
+  .xdm { display: block; color: var(--ink); }
+  .xdm circle.on  { fill: currentColor; }
+  .xdm circle.off { fill: var(--line-strong); opacity: 0.3; }
+
+  @keyframes xpulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.3; }
+  }
+  .xdm-anim circle.on {
+    animation: xpulse 3.4s ease-in-out infinite;
+  }
+</style>
