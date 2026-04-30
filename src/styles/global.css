@@ -502,7 +502,7 @@ h3.sub.forge {
   .hero-title { font-size: 84px; }
   .hero-hammer { width: 140px; margin: 0 auto; }
   .hero-showpiece { max-width: 640px; justify-self: center; justify-content: center; }
-  .hero-showpiece .halftone-stage { max-width: 260px; }
+  .hero-showpiece .halftone-stage { max-width: 220px; }
   .forge-head { grid-template-columns: 1fr; }
   .forge-piece {
     width: 100%;
@@ -524,5 +524,5 @@ h3.sub.forge {
 
 @media (max-width: 480px) {
   .hero-title { font-size: 68px; }
-  .hero-showpiece .halftone-stage { max-width: 180px; }
+  .hero-showpiece .halftone-stage { max-width: 150px; }
 }
