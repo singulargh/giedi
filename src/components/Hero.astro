@@ -1,5 +1,6 @@
 ---
 import HalftoneScene from "./HalftoneScene.astro";
+import XIcon from "./XIcon.astro";
 ---
 
 <header class="hero">
@@ -8,19 +9,12 @@ import HalftoneScene from "./HalftoneScene.astro";
       <h1 class="hero-title">Giedi</h1>
       <p class="forge-tag">THE ONCHAIN BOT FORGE</p>
       <p class="forge-line">
-        X bots that read the chain,<br />
+        <span class="xi"><XIcon /></span> bots that read the chain,<br />
         forged in iron, deployed onchain.
       </p>
-      <div class="hero-cta">
-        <a href="/start" class="btn primary">FORGE A BOT →</a>
-      </div>
     </div>
     <div class="hero-showpiece">
       <HalftoneScene kind="xlogo" size="lg" />
     </div>
   </div>
 </header>
-
-<style>
-  .hero-cta { margin-top: 28px; }
-</style>
