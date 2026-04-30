@@ -1,20 +1,45 @@
 ---
-import HalftoneScene from "./HalftoneScene.astro";
+import XDotMatrix from "./XDotMatrix.astro";
 ---
 
 <header class="hero">
   <div class="hero-top">
     <div class="hero-copy">
       <h1 class="hero-title">Giedi</h1>
-      <p class="forge-tag">THE ONCHAIN DATA FORGE</p>
+      <p class="forge-tag">THE ONCHAIN BOT FORGE</p>
       <p class="forge-line">
-        We forge dashboards, reports &amp; data infra<br />
-        from the raw iron of the chain.
+        X bots that read the chain,<br />
+        forged in iron, deployed onchain.
       </p>
+      <div class="hero-cta">
+        <a href="/start" class="btn primary">FORGE A BOT →</a>
+      </div>
     </div>
     <div class="hero-showpiece">
-      <HalftoneScene kind="crystal" size="lg" />
-      <HalftoneScene kind="solana" size="lg" />
+      <XDotMatrix size={360} animate={true} class="hero-xdm" />
     </div>
   </div>
 </header>
+
+<style>
+  .hero-cta { margin-top: 28px; }
+
+  /* Keep the XDotMatrix from stretching on mobile */
+  .hero-showpiece {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .hero-showpiece :global(.hero-xdm) {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  @media (max-width: 860px) {
+    .hero-showpiece {
+      justify-content: center;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+  }
+</style>

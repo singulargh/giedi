@@ -1,19 +1,17 @@
 import { defineCollection, z } from "astro:content";
 
-// Each "work" entry is either a dashboard we shipped or a piece of research/
-// writing about an interesting on-chain project. New entries are dropped into
-// src/content/work/ as .md or .mdx and show up in the Work list automatically.
+// Each "work" entry represents a bot or automation we shipped.
+// New entries are dropped into src/content/work/ as .md or .mdx.
 const work = defineCollection({
   type: "content",
   schema: z.object({
     title: z.string(),
     excerpt: z.string(),
-    // "dashboard" | "research" | "infra"
-    kind: z.enum(["dashboard", "research", "infra"]).default("dashboard"),
+    // "bot" | "infra" | "research"
+    kind: z.enum(["dashboard", "research", "infra", "bot"]).default("bot"),
     client: z.string().optional(),
     chain: z.string().optional(),
-    // URL to the live Dune dashboard / report / repo we built for this entry.
-    // This is the "OPEN ON DUNE" CTA on the detail page.
+    // URL to the live bot / deployment / artifact for this entry.
     link: z.string().url().optional(),
     // Optional external links shown as secondary buttons on the detail page.
     // All optional — render only the ones that are set.

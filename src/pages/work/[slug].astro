@@ -4,7 +4,6 @@ import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav.astro";
 import Footer from "../../components/Footer.astro";
 import XIcon from "../../components/XIcon.astro";
-import DuneIcon from "../../components/DuneIcon.astro";
 import TelegramIcon from "../../components/TelegramIcon.astro";
 import DiscordIcon from "../../components/DiscordIcon.astro";
 
@@ -41,8 +40,8 @@ const pageDesc = entry.data.excerpt;
   ogType="article"
   keywords={[
     entry.data.kind,
-    "dune analytics",
-    "onchain data",
+    "x bot",
+    "onchain bot",
     ...(entry.data.client ? [entry.data.client] : []),
     ...(entry.data.chain ? [entry.data.chain] : []),
   ].join(", ")}
@@ -92,9 +91,8 @@ const pageDesc = entry.data.excerpt;
           href={entry.data.link}
           target="_blank"
           rel="noopener"
-          aria-label="Open on Dune"
         >
-          <DuneIcon />
+          <span>LIVE BOT</span>
           <span class="arrow">↗</span>
         </a>
       )}

@@ -1,10 +1,9 @@
 ---
 import XIcon from "./XIcon.astro";
-import DuneIcon from "./DuneIcon.astro";
 
 const links = [
-  { href: "/work", label: "WORK" },
-  { href: "/contact", label: "CONTACT" },
+  { href: "/work",  label: "WORK" },
+  { href: "/start", label: "START A BOT" },
 ];
 ---
 
@@ -13,25 +12,7 @@ const links = [
     <span class="brand-g">G</span>
   </a>
   <div class="nav-links">
-    {
-      links.map((l) => (
-        <a
-          href={l.href}
-          {...(l.external ? { target: "_blank", rel: "noopener" } : {})}
-        >
-          {l.label}
-        </a>
-      ))
-    }
-    <a
-      href="https://dune.com/giedixyz"
-      target="_blank"
-      rel="noopener"
-      class="nav-icon"
-      aria-label="Dune"
-    >
-      <DuneIcon />
-    </a>
+    {links.map(l => <a href={l.href}>{l.label}</a>)}
     <a
       href="https://x.com/giedixyz"
       target="_blank"
@@ -41,13 +22,11 @@ const links = [
     >
       <XIcon />
     </a>
+    <a href="/login" class="btn nav-login">LOG IN</a>
   </div>
 </nav>
 
 <style>
-  /* Match cap-height of the surrounding text, not full em-box.
-     A capital "W" only occupies ~0.7em, while an SVG glyph fills the full
-     viewBox — so matching to 1em makes icons visually taller than letters. */
   .nav-icon { padding: 4px 8px; display: inline-flex; align-items: center; }
   .nav-icon :global(svg) {
     width: 0.82em;
@@ -55,15 +34,21 @@ const links = [
     display: block;
   }
 
-  /* Mobile: same horizontal layout as desktop — brand left, links right,
-     same gap/padding as desktop so the spacing feels consistent. We just
-     shrink the logo a touch so everything fits on one row. */
+  .nav-login {
+    padding: 6px 14px !important;
+    font-size: 10px !important;
+    letter-spacing: 2px;
+    color: var(--ink) !important;
+    border-color: var(--line-strong);
+    margin-left: 4px;
+  }
+  .nav-login:hover {
+    background: var(--ink);
+    color: #000 !important;
+  }
+
   @media (max-width: 640px) {
-    .nav-links {
-      flex-wrap: nowrap;
-    }
-    .brand-g {
-      font-size: 36px;
-    }
+    .nav-links { flex-wrap: nowrap; }
+    .brand-g   { font-size: 36px; }
   }
 </style>
