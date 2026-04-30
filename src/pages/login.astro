@@ -1,7 +1,6 @@
 ---
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
-import XIcon from "../components/XIcon.astro";
 ---
 
 <Base
@@ -21,8 +20,7 @@ import XIcon from "../components/XIcon.astro";
       <!-- OAuth block -->
       <div class="oauth-row">
         <button class="btn primary oauth-btn" id="btn-x" type="button" disabled>
-          <span>CONTINUE WITH</span>
-          <span class="xi oauth-xi"><XIcon /></span>
+          CONTINUE WITH <span class="xi oauth-xi">X</span>
           <span class="badge">SOON</span>
         </button>
       </div>
@@ -95,9 +93,8 @@ import XIcon from "../components/XIcon.astro";
     position: relative;
   }
   .oauth-btn:disabled { opacity: 0.5; cursor: default; }
-  /* Override .xi em-sizing inside the button — match button label height */
-  .oauth-xi { vertical-align: -0.18em; }
-  .oauth-xi :global(svg) { width: 16px; height: 16px; }
+  /* StarCrush X inside the button — bump size to match the label caps */
+  .oauth-xi { font-size: 1.15em; line-height: 1; vertical-align: -0.05em; }
   .badge {
     position: absolute;
     right: 14px;
