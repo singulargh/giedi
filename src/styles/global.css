@@ -60,14 +60,10 @@ a:hover { color: var(--hi); }
 }
 
 /* ——— Inline X brand mark ———
-   Renders the letter "X" in StarCrush so it reads as a brand mark while
-   staying visually consistent with the forge aesthetic. Use anywhere the
-   X platform is referenced in prose: <span class="xi">X</span> */
-.xi {
-  font-family: "StarCrush", monospace;
-  display: inline;
-  line-height: 1;
-}
+   Inherits the font of whatever context it's in — StarCrush in display
+   headings, JetBrains Mono in body copy. No override needed.
+   Usage: <span class="xi">X</span> */
+.xi { display: inline; }
 
 /* Separators. */
 .rule {
