@@ -59,6 +59,21 @@ a:hover { color: var(--hi); }
   padding: 28px 32px 80px;
 }
 
+/* ——— Inline X logo ———
+   Use <span class="xi"><XIcon /></span> anywhere "X" (the platform) appears
+   in prose. Scales with the surrounding font-size via em units. */
+.xi {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: -0.12em;
+}
+.xi svg {
+  width: 0.82em;
+  height: 0.82em;
+  display: block;
+  fill: currentColor;
+}
+
 /* Separators. */
 .rule {
   border: 0;
